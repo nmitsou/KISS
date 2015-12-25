@@ -5,6 +5,10 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ListActivity;
+import android.appwidget.AppWidgetHost;
+import android.appwidget.AppWidgetHostView;
+import android.appwidget.AppWidgetManager;
+import android.appwidget.AppWidgetProviderInfo;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -28,10 +32,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewAnimationUtils;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
@@ -54,12 +60,12 @@ public class MainActivity extends ListActivity implements QueryInterface {
     public static final String START_LOAD = "fr.neamar.summon.START_LOAD";
     public static final String LOAD_OVER = "fr.neamar.summon.LOAD_OVER";
     public static final String FULL_LOAD_OVER = "fr.neamar.summon.FULL_LOAD_OVER";
+    private static final String KEY_WIDGET_IDS = "fr.neamar.kiss.KEY_WIDGET_IDS";
 
     /**
      * IDS for the favorites buttons
      */
-    private final int[] favsIds = new int[]{R.id.favorite0, R.id.favorite1, R.id.favorite2, R.id.favorite3};
-
+    private final int[] favsIds = new int[] {R.id.favorite0, R.id.favorite1, R.id.favorite2, R.id.favorite3};
     /**
      * Number of favorites to retrieve.
      * We need to pad this number to account for removed items still in history
@@ -68,8 +74,7 @@ public class MainActivity extends ListActivity implements QueryInterface {
     /**
      * InputType with spellecheck and swiping
      */
-    private final int spellcheckEnabledType = InputType.TYPE_CLASS_TEXT |
-            InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
+    private final int spellcheckEnabledType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
     /**
      * Adapter to display records
      */
@@ -101,6 +106,8 @@ public class MainActivity extends ListActivity implements QueryInterface {
      * Task launched on text change
      */
     private Searcher searcher;
+    private AppWidgetManager appWidgetManager;
+    private AppWidgetHost appWidgetHost;
 
     /**
      * Called when the activity is first created.
@@ -112,13 +119,13 @@ public class MainActivity extends ListActivity implements QueryInterface {
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         String theme = prefs.getString("theme", "light");
-        if (theme.equals("dark")) {
+        if(theme.equals("dark")) {
             setTheme(R.style.AppThemeDark);
-        } else if (theme.equals("transparent")) {
+        } else if(theme.equals("transparent")) {
             setTheme(R.style.AppThemeTransparent);
-        } else if (theme.equals("semi-transparent")) {
+        } else if(theme.equals("semi-transparent")) {
             setTheme(R.style.AppThemeSemiTransparent);
-        } else if (theme.equals("semi-transparent-dark")) {
+        } else if(theme.equals("semi-transparent-dark")) {
             setTheme(R.style.AppThemeSemiTransparentDark);
         }
 
@@ -130,12 +137,12 @@ public class MainActivity extends ListActivity implements QueryInterface {
         mReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equalsIgnoreCase(LOAD_OVER)) {
+                if(intent.getAction().equalsIgnoreCase(LOAD_OVER)) {
                     updateRecords(searchEditText.getText().toString());
-                } else if (intent.getAction().equalsIgnoreCase(FULL_LOAD_OVER)) {
+                } else if(intent.getAction().equalsIgnoreCase(FULL_LOAD_OVER)) {
                     displayLoader(false);
 
-                } else if (intent.getAction().equalsIgnoreCase(START_LOAD)) {
+                } else if(intent.getAction().equalsIgnoreCase(START_LOAD)) {
                     displayLoader(true);
                 }
             }
@@ -152,8 +159,8 @@ public class MainActivity extends ListActivity implements QueryInterface {
 
         // Lock launcher into portrait mode
         // Do it here (before initializing the view) to make the transition as smooth as possible
-        if (prefs.getBoolean("force-portrait", true)) {
-            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+        if(prefs.getBoolean("force-portrait", true)) {
+            if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
             } else {
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -172,7 +179,7 @@ public class MainActivity extends ListActivity implements QueryInterface {
         searchEditText.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {
                 // Auto left-trim text.
-                if (s.length() > 0 && s.charAt(0) == ' ')
+                if(s.length() > 0 && s.charAt(0) == ' ')
                     s.delete(0, 1);
             }
 
@@ -199,23 +206,22 @@ public class MainActivity extends ListActivity implements QueryInterface {
             }
         });
 
-        searchEditText.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                if (prefs.getBoolean("history-hide", false) && prefs.getBoolean("history-onclick", false)) {
+        String miniUi = prefs.getString("mini-ui", "history");
+        if(!miniUi.equals("history-intro")) {
+            searchEditText.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
                     //show history only if no search text is added
-                    if (((EditText) v).getText().toString().isEmpty()) {
+                    if(((EditText) v).getText().toString().isEmpty()) {
                         searcher = new HistorySearcher(MainActivity.this);
                         searcher.execute();
                     }
                 }
-            }
-        });
+            });
+        }
 
         kissBar = findViewById(R.id.main_kissbar);
         menuButton = findViewById(R.id.menuButton);
-        registerForContextMenu(menuButton);
 
         getListView().setLongClickable(true);
         getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -228,7 +234,7 @@ public class MainActivity extends ListActivity implements QueryInterface {
         });
 
         // Enable swiping
-        if (prefs.getBoolean("enable-spellcheck", false)) {
+        if(prefs.getBoolean("enable-spellcheck", false)) {
             searchEditText.setInputType(spellcheckEnabledType);
         }
 
@@ -237,36 +243,47 @@ public class MainActivity extends ListActivity implements QueryInterface {
 
         // Apply effects depending on current Android version
         applyDesignTweaks();
+
+        // Initialize widgets management
+        appWidgetManager = AppWidgetManager.getInstance(this);
+        appWidgetHost = new AppWidgetHost(this, R.id.appWidgetHostId);
+        findViewById(R.id.widgets).setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                pickWidget();
+                return true;
+            }
+        });
     }
 
     /**
      * Apply some tweaks to the design, depending on the current SDK version
      */
     private void applyDesignTweaks() {
-        final int[] tweakableIds = new int[]{
-                R.id.menuButton,
-                // Barely visible on the clearbutton, since it disappears instant. Can be seen on long click though
-                R.id.clearButton,
-                R.id.launcherButton,
-                R.id.favorite0,
-                R.id.favorite1,
-                R.id.favorite2,
-                R.id.favorite3,
+        final int[] tweakableIds = new int[] {
+              R.id.menuButton,
+              // Barely visible on the clearbutton, since it disappears instant. Can be seen on long click though
+              R.id.clearButton,
+              R.id.launcherButton,
+              R.id.favorite0,
+              R.id.favorite1,
+              R.id.favorite2,
+              R.id.favorite3,
         };
 
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             TypedValue outValue = new TypedValue();
             getTheme().resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, outValue, true);
 
-            for (int id : tweakableIds) {
+            for(int id : tweakableIds) {
                 findViewById(id).setBackgroundResource(outValue.resourceId);
             }
 
-        } else if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+        } else if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             TypedValue outValue = new TypedValue();
             getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
 
-            for (int id : tweakableIds) {
+            for(int id : tweakableIds) {
                 findViewById(id).setBackgroundResource(outValue.resourceId);
             }
         }
@@ -282,32 +299,180 @@ public class MainActivity extends ListActivity implements QueryInterface {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_settings, menu);
+        inflater.inflate(R.menu.menu_widget, menu);
+        ((WidgetContextMenuInfo) menuInfo).targetedView = v;
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        return onOptionsItemSelected(item);
+        WidgetContextMenuInfo info = (WidgetContextMenuInfo) item.getMenuInfo();
+        AppWidgetHostView hostView = (AppWidgetHostView) info.targetedView;
+        switch(item.getItemId()) {
+            case R.id.remove_widget:
+                removeWidget(hostView);
+                return true;
+            case R.id.configure_widget:
+                configureWidget(hostView.getAppWidgetId());
+                return true;
+            default:
+                return false;
+        }
     }
+
+    /**
+     * Start widget updates listening
+     */
+    @Override
+    protected void onStart() {
+        super.onStart();
+        appWidgetHost.startListening();
+    }
+
+    /**
+     * Stop widget updates listening
+     */
+    @Override
+    protected void onStop() {
+        super.onStop();
+        appWidgetHost.stopListening();
+    }
+
+    /**
+     *
+     */
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        LinearLayout widgets = (LinearLayout) findViewById(R.id.widgets);
+        int widgetsCount = widgets.getChildCount();
+        int[] ids = new int[widgetsCount];
+        for(int i=0; i<widgetsCount; ++i) {
+            AppWidgetHostView widgetView = (AppWidgetHostView) widgets.getChildAt(i);
+            ids[i] = widgetView.getAppWidgetId();
+        }
+        outState.putIntArray(KEY_WIDGET_IDS, ids);
+    }
+
+    /**
+     *
+     */
+    @Override
+    protected void onRestoreInstanceState(Bundle state) {
+        int[] ids = state.getIntArray(KEY_WIDGET_IDS);
+        for(int i=0; i<ids.length; ++i) {
+            LinearLayout widgets = (LinearLayout) findViewById(R.id.widgets);
+            createWidget(ids[i]);
+        }
+    }
+
+    /**
+     * Pick the widget to be added
+     */
+    private void pickWidget() {
+        int appWidgetId = appWidgetHost.allocateAppWidgetId();
+        Intent pickIntent = new Intent(AppWidgetManager.ACTION_APPWIDGET_PICK);
+        pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        addEmptyData(pickIntent);
+        startActivityForResult(pickIntent, R.id.requestPickAppWidget);
+    }
+
+    /**
+     * This avoids a bug in the com.android.settings.AppWidgetPickActivity,
+     * which is used to select widgets. This just adds empty extras to the
+     * intent, avoiding the bug.
+     * <p/>
+     * See more: http://code.google.com/p/android/issues/detail?id=4272
+     */
+    private void addEmptyData(Intent pickIntent) {
+        ArrayList<AppWidgetProviderInfo> customInfo = new ArrayList<AppWidgetProviderInfo>();
+        pickIntent.putParcelableArrayListExtra(AppWidgetManager.EXTRA_CUSTOM_INFO, customInfo);
+        ArrayList<Bundle> customExtras = new ArrayList<Bundle>();
+        pickIntent.putParcelableArrayListExtra(AppWidgetManager.EXTRA_CUSTOM_EXTRAS, customExtras);
+    }
+
+    /**
+     *
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            int id = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
+            switch(requestCode) {
+                case R.id.requestPickAppWidget:
+                    configureWidget(id);
+                    break;
+                case R.id.requestCreateAppWidget:
+                    createWidget(id);
+                    break;
+                default:
+                    break;
+            }
+        } else if (resultCode == RESULT_CANCELED && data != null) {
+			int appWidgetId = data.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
+			if (appWidgetId != -1) {
+				appWidgetHost.deleteAppWidgetId(appWidgetId);
+			}
+		}
+    }
+
+    /**
+     * Launch widget configuration activity if needed
+     */
+    private void configureWidget(int id) {
+        AppWidgetProviderInfo info = appWidgetManager.getAppWidgetInfo(id);
+        if(info.configure != null) {
+            Intent confIntent = new Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE);
+            confIntent.setComponent(info.configure);
+            confIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id);
+            startActivityForResult(confIntent, R.id.requestCreateAppWidget);
+        } else {
+            createWidget(id);
+        }
+    }
+
+    /**
+     * Create the widget
+     */
+    private void createWidget(int id) {
+        AppWidgetProviderInfo appWidgetInfo = appWidgetManager.getAppWidgetInfo(id);
+        AppWidgetHostView hostView = appWidgetHost.createView(this, id, appWidgetInfo);
+        hostView.setAppWidget(id, appWidgetInfo);
+        registerForContextMenu(hostView);
+        findViewById(R.id.intro).setVisibility(View.GONE);
+        ((ViewGroup) findViewById(R.id.widgets)).addView(hostView);
+    }
+
+	/**
+	 * Removes the widget displayed by this AppWidgetHostView.
+	 */
+	public void removeWidget(AppWidgetHostView hostView) {
+        appWidgetHost.deleteAppWidgetId(hostView.getAppWidgetId());
+        ViewGroup widgetGroup = (ViewGroup) findViewById(R.id.widgets);
+        widgetGroup.removeView(hostView);
+        if(widgetGroup.getChildCount() == 0) {
+            findViewById(R.id.intro).setVisibility(View.VISIBLE);
+        }
+	}
 
     /**
      * Empty text field on resume and show keyboard
      */
+    @Override
     protected void onResume() {
-        if (prefs.getBoolean("require-layout-update", false)) {
+        if(prefs.getBoolean("require-layout-update", false)) {
             // Restart current activity to refresh view, since some preferences
             // may require using a new UI
             prefs.edit().putBoolean("require-layout-update", false).commit();
             Intent i = new Intent(this, getClass());
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
-                    | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                  | Intent.FLAG_ACTIVITY_NO_ANIMATION);
             finish();
             overridePendingTransition(0, 0);
             startActivity(i);
             overridePendingTransition(0, 0);
         }
 
-        if (kissBar.getVisibility() != View.VISIBLE) {
+        if(kissBar.getVisibility() != View.VISIBLE) {
             updateRecords(searchEditText.getText().toString());
             displayClearOnInput();
         } else {
@@ -317,7 +482,7 @@ public class MainActivity extends ListActivity implements QueryInterface {
         // Activity manifest specifies stateAlwaysHidden as windowSoftInputMode
         // so the keyboard will be hidden by default
         // we may want to display it if the setting is set
-        if (prefs.getBoolean("display-keyboard", false)) {
+        if(prefs.getBoolean("display-keyboard", false)) {
             // Display keyboard
             showKeyboard();
 
@@ -361,7 +526,7 @@ public class MainActivity extends ListActivity implements QueryInterface {
     @Override
     public void onBackPressed() {
         // Is the kiss menu visible?
-        if (menuButton.getVisibility() == View.VISIBLE) {
+        if(menuButton.getVisibility() == View.VISIBLE) {
             displayKissBar(false);
         } else {
             // If no kissmenu, empty the search bar
@@ -373,7 +538,7 @@ public class MainActivity extends ListActivity implements QueryInterface {
 
     @Override
     public boolean onKeyDown(int keycode, @NonNull KeyEvent e) {
-        switch (keycode) {
+        switch(keycode) {
             case KeyEvent.KEYCODE_MENU:
                 // For user with a physical menu button, we still want to display *our* contextual menu
                 menuButton.showContextMenu();
@@ -385,7 +550,7 @@ public class MainActivity extends ListActivity implements QueryInterface {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+        switch(item.getItemId()) {
             case R.id.settings:
                 startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS));
                 return true;
@@ -397,6 +562,14 @@ public class MainActivity extends ListActivity implements QueryInterface {
             case R.id.preferences:
                 startActivity(new Intent(this, SettingsActivity.class));
                 return true;
+            case R.id.addWidget:
+                pickWidget();
+                return true;
+            case R.id.remove_widget:
+                ViewGroup widgets = (ViewGroup) findViewById(R.id.widgets);
+                AppWidgetHostView widgetToRemove = (AppWidgetHostView) widgets.getChildAt(widgets.getChildCount() - 1);
+                removeWidget(widgetToRemove);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -407,7 +580,13 @@ public class MainActivity extends ListActivity implements QueryInterface {
         super.onCreateOptionsMenu(menu);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_settings, menu);
+        return true;
+    }
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        menu.findItem(R.id.remove_widget).setEnabled(((ViewGroup) findViewById(R.id.widgets)).getChildCount() != 0);
         return true;
     }
 
@@ -419,8 +598,10 @@ public class MainActivity extends ListActivity implements QueryInterface {
     public void onMenuButtonClicked(View menuButton) {
         // When the kiss bar is displayed, the button can still be clicked in a few areas (due to favorite margin)
         // To fix this, we discard any click event occurring when the kissbar is displayed
-        if (kissBar.getVisibility() != View.VISIBLE)
-            menuButton.showContextMenu();
+        if(kissBar.getVisibility() != View.VISIBLE) {
+//            menuButton.showContextMenu();
+            openOptionsMenu();
+        }
     }
 
     /**
@@ -444,7 +625,7 @@ public class MainActivity extends ListActivity implements QueryInterface {
 
         // Favorites handling
         Pojo pojo = KissApplication.getDataHandler(MainActivity.this).getFavorites(MainActivity.this, tryToRetrieve)
-                .get(Integer.parseInt((String) favorite.getTag()));
+              .get(Integer.parseInt((String) favorite.getTag()));
         final Result result = Result.fromPojo(MainActivity.this, pojo);
 
         Handler handler = new Handler();
@@ -458,7 +639,7 @@ public class MainActivity extends ListActivity implements QueryInterface {
 
     private void displayClearOnInput() {
         final View clearButton = findViewById(R.id.clearButton);
-        if (searchEditText.getText().length() > 0) {
+        if(searchEditText.getText().length() > 0) {
             clearButton.setVisibility(View.VISIBLE);
             menuButton.setVisibility(View.INVISIBLE);
         } else {
@@ -473,28 +654,28 @@ public class MainActivity extends ListActivity implements QueryInterface {
         final View launcherButton = findViewById(R.id.launcherButton);
 
         int animationDuration = getResources().getInteger(
-                android.R.integer.config_longAnimTime);
+              android.R.integer.config_longAnimTime);
 
-        if (!display) {
+        if(!display) {
             launcherButton.setVisibility(View.VISIBLE);
 
-            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                 // Animate transition from loader to launch button
                 launcherButton.setAlpha(0);
                 launcherButton.animate()
-                        .alpha(1f)
-                        .setDuration(animationDuration)
-                        .setListener(null);
+                      .alpha(1f)
+                      .setDuration(animationDuration)
+                      .setListener(null);
                 loaderBar.animate()
-                        .alpha(0f)
-                        .setDuration(animationDuration)
-                        .setListener(new AnimatorListenerAdapter() {
-                            @Override
-                            public void onAnimationEnd(Animator animation) {
-                                loaderBar.setVisibility(View.GONE);
-                                loaderBar.setAlpha(1);
-                            }
-                        });
+                      .alpha(0f)
+                      .setDuration(animationDuration)
+                      .setListener(new AnimatorListenerAdapter() {
+                          @Override
+                          public void onAnimationEnd(Animator animation) {
+                              loaderBar.setVisibility(View.GONE);
+                              loaderBar.setAlpha(1);
+                          }
+                      });
             } else {
                 loaderBar.setVisibility(View.GONE);
             }
@@ -514,16 +695,16 @@ public class MainActivity extends ListActivity implements QueryInterface {
         // get the final radius for the clipping circle
         int finalRadius = Math.max(kissBar.getWidth(), kissBar.getHeight());
 
-        if (display) {
+        if(display) {
             // Display the app list
-            if (searcher != null) {
+            if(searcher != null) {
                 searcher.cancel(true);
             }
             searcher = new ApplicationsSearcher(MainActivity.this);
             searcher.execute();
 
             // Reveal the bar
-            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 Animator anim = ViewAnimationUtils.createCircularReveal(kissBar, cx, cy, 0, finalRadius);
                 kissBar.setVisibility(View.VISIBLE);
                 anim.start();
@@ -534,35 +715,35 @@ public class MainActivity extends ListActivity implements QueryInterface {
 
             // Retrieve favorites. Try to retrieve more, since some favorites can't be displayed (e.g. search queries)
             ArrayList<Pojo> favoritesPojo = KissApplication.getDataHandler(MainActivity.this)
-                    .getFavorites(MainActivity.this, tryToRetrieve);
+                  .getFavorites(MainActivity.this, tryToRetrieve);
 
-            if (favoritesPojo.size() == 0) {
+            if(favoritesPojo.size() == 0) {
                 Toast toast = Toast.makeText(MainActivity.this, getString(R.string.no_favorites), Toast.LENGTH_SHORT);
                 toast.show();
             }
 
             // Don't look for items after favIds length, we won't be able to display them
-            for (int i = 0; i < Math.min(favsIds.length, favoritesPojo.size()); i++) {
+            for(int i = 0; i < Math.min(favsIds.length, favoritesPojo.size()); i++) {
                 Pojo pojo = favoritesPojo.get(i);
                 ImageView image = (ImageView) findViewById(favsIds[i]);
 
                 Result result = Result.fromPojo(MainActivity.this, pojo);
                 Drawable drawable = result.getDrawable(MainActivity.this);
-                if (drawable != null)
+                if(drawable != null)
                     image.setImageDrawable(drawable);
                 image.setVisibility(View.VISIBLE);
                 image.setContentDescription(pojo.displayName);
             }
 
             // Hide empty favorites (not enough favorites yet)
-            for (int i = favoritesPojo.size(); i < favsIds.length; i++) {
+            for(int i = favoritesPojo.size(); i < favsIds.length; i++) {
                 findViewById(favsIds[i]).setVisibility(View.GONE);
             }
 
             hideKeyboard();
         } else {
             // Hide the bar
-            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 Animator anim = ViewAnimationUtils.createCircularReveal(kissBar, cx, cy, finalRadius, 0);
                 anim.addListener(new AnimatorListenerAdapter() {
                     @Override
@@ -586,22 +767,21 @@ public class MainActivity extends ListActivity implements QueryInterface {
      *
      * @param query the query on which to search
      */
-
     private void updateRecords(String query) {
-        if (searcher != null) {
+        if(searcher != null) {
             searcher.cancel(true);
         }
 
-        if (query.length() == 0) {
-            if (prefs.getBoolean("history-hide", false)) {
+        if(query.length() == 0) {
+            if(!prefs.getString("mini-ui", "history").equals("history")) {
                 searcher = new NullSearcher(this);
                 //Hide default scrollview
-                findViewById(R.id.main_empty).setVisibility(View.INVISIBLE);
+                findViewById(R.id.intro).setVisibility(View.GONE);
 
             } else {
                 searcher = new HistorySearcher(this);
                 //Show default scrollview
-                findViewById(R.id.main_empty).setVisibility(View.VISIBLE);
+                findViewById(R.id.intro).setVisibility(View.VISIBLE);
             }
         } else {
             searcher = new QuerySearcher(this, query);
@@ -620,7 +800,7 @@ public class MainActivity extends ListActivity implements QueryInterface {
     public void launchOccurred(int index, Result result) {
         // We selected an item on the list,
         // now we can cleanup the filter:
-        if (!searchEditText.getText().toString().equals("")) {
+        if(!searchEditText.getText().toString().equals("")) {
             searchEditText.setText("");
             hideKeyboard();
         }
@@ -629,7 +809,7 @@ public class MainActivity extends ListActivity implements QueryInterface {
     private void hideKeyboard() {
         // Check if no view has focus:
         View view = this.getCurrentFocus();
-        if (view != null) {
+        if(view != null) {
             InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
             inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
@@ -639,5 +819,9 @@ public class MainActivity extends ListActivity implements QueryInterface {
         searchEditText.requestFocus();
         InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         mgr.showSoftInput(searchEditText, InputMethodManager.SHOW_IMPLICIT);
+    }
+
+    class WidgetContextMenuInfo implements ContextMenu.ContextMenuInfo {
+        public View targetedView;
     }
 }

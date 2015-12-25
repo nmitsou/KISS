@@ -22,4 +22,14 @@
         <item>alphabetical</item>
         <item>invertedAlphabetical</item>
     </string-array>
+    <string-array name="historyEntries">
+        <item>Always show history (default)</item>
+        <item>Show history on search</item>
+        <item>Never show history</item>
+    </string-array>
+    <string-array name="historyValues">
+        <item>history</item>
+        <item>widgets</item>
+        <item>widgets-history</item>
+    </string-array>
 </resources>

@@ -117,15 +117,15 @@
             android:visibility="visible"/>
     </RelativeLayout>
 
-    <ScrollView
+    <RelativeLayout
         android:id="@android:id/empty"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_above="@id/searchEditLayout"
         android:visibility="gone">
 
         <include android:id="@+id/main_empty" layout="@layout/main_empty"/>
-    </ScrollView>
+    </RelativeLayout>
 
     <include
         android:id="@+id/main_kissbar"
