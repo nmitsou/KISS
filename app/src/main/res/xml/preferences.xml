@@ -32,6 +32,13 @@
             android:key="reset-excluded-apps"
             android:summary="@string/reset_excluded_apps_desc"
             android:title="@string/reset_excluded_apps_name" />
+        <PreferenceScreen
+            android:key="edit-excluded-apps"
+            android:summary="@string/edit_excluded_apps_desc"
+            android:title="@string/edit_excluded_apps_name" >
+            <intent android:action="fr.neamar.kiss.ui.AppsSelectorUi" />
+        </PreferenceScreen>
+
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/title_ui">
         <ListPreference

@@ -62,6 +62,9 @@
     <string name="reset_excluded_apps_desc">Reset the list of excluded from KISS apps</string>
     <string name="reset_excluded_apps_name">Reset excluded app list</string>
     <string name="reset_excluded_apps_warn">Do you really want to reset your excluded app list?</string>
+    <string name="edit_excluded_apps_desc">Remove apps from the excluded apps list</string>
+    <string name="edit_excluded_apps_name">Edit your excluded apps list</string>
+    <string name="no_excluded_apps">Excluded app list is empty</string>
     <string name="reset_warn">Do you really want to reset your history?</string>
     <string name="reset_favorites_desc">Reset your list of favorites</string>
     <string name="reset_favorites_name">Reset favorites</string>
@@ -81,9 +84,9 @@
     <string name="root_mode_desc">Enable root features if available (to hibernate applications)</string>
     <string name="root_mode_name">Root mode</string>
     <string name="root_mode_error">Unable to gain root privileges.</string>
-    
+
     <string name="icons_pack_desc">Choose an icon theme (ADW.Launcher theme)</string>
-    <string name="icons_pack_name">Icons Themes</string>    
+    <string name="icons_pack_name">Icons Themes</string>
     <string name="icons_pack_default_name">System icons</string>
 
     <string name="alias_phone">dial,call,phone</string>
