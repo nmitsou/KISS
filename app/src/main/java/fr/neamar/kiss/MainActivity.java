@@ -595,7 +595,13 @@ public class MainActivity extends ListActivity implements QueryInterface {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        menu.findItem(R.id.remove_widget).setEnabled(((ViewGroup) findViewById(R.id.widgets)).getChildCount() != 0);
+        if(prefs.getString("mini-ui", "history").equals("history")) {
+            menu.findItem(R.id.add_widget).setVisible(false);
+            menu.findItem(R.id.remove_widget).setVisible(false);
+        } else {
+            menu.findItem(R.id.add_widget).setVisible(true);
+            menu.findItem(R.id.remove_widget).setVisible(((ViewGroup) findViewById(R.id.widgets)).getChildCount() != 0);
+        }
         return true;
     }
 
