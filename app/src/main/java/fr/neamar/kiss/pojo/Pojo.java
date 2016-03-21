@@ -2,6 +2,8 @@ package fr.neamar.kiss.pojo;
 
 import android.util.Pair;
 
+import java.util.ArrayList;
+
 import fr.neamar.kiss.normalizer.StringNormalizer;
 
 public abstract class Pojo {
@@ -31,16 +33,16 @@ public abstract class Pojo {
      * @param position Position in normalized name
      * @return Position in non-normalized string
      */
-    private int mapPosition(int position) {
-        if (this.namePositionMap != null) {
-            if (position < this.namePositionMap.length) {
+    public int mapPosition(int position) {
+        if(this.namePositionMap != null) {
+            if(position < this.namePositionMap.length) {
                 return this.namePositionMap[position];
             } else {
                 return this.name.length();
             }
         } else {
             // No mapping defined
-            if (position < this.name.length()) {
+            if(position < this.name.length()) {
                 return position;
             } else {
                 return this.name.length();
@@ -61,7 +63,7 @@ public abstract class Pojo {
         // Set the actual user-friendly name
         this.name = name;
 
-        if (name != null) {
+        if(name != null) {
             this.name = this.name.replaceAll("<", "&lt;");
             // Normalize name for faster searching
             Pair<String, int[]> normalized = StringNormalizer.normalizeWithMap(this.name);
@@ -85,7 +87,21 @@ public abstract class Pojo {
         int positionEnd = this.mapPosition(positionNormalizedEnd);
 
         this.displayName = this.name.substring(0, positionStart)
-                + '{' + this.name.substring(positionStart, positionEnd) + '}'
-                + this.name.substring(positionEnd);
+              + '{' + this.name.substring(positionStart, positionEnd) + '}'
+              + this.name.substring(positionEnd);
+    }
+
+    public void setDisplayNameHighlightRegion(ArrayList<Pair<Integer, Integer>> positions) {
+        this.displayName = "";
+        int lastPositionEnd = 0;
+        for(Pair<Integer, Integer> position : positions) {
+            int positionStart = this.mapPosition(position.first);
+            int positionEnd = this.mapPosition(position.second);
+
+            this.displayName += this.name.substring(lastPositionEnd, positionStart)
+                  + '{' + this.name.substring(positionStart, positionEnd) + '}';
+            lastPositionEnd = positionEnd;
+        }
+        this.displayName += this.name.substring(lastPositionEnd);
     }
 }

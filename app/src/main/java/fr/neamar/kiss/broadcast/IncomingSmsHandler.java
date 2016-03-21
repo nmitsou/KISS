@@ -8,28 +8,28 @@ import android.telephony.SmsMessage;
 
 import fr.neamar.kiss.DataHandler;
 import fr.neamar.kiss.KissApplication;
-import fr.neamar.kiss.dataprovider.ContactProvider;
-import fr.neamar.kiss.pojo.ContactPojo;
+import fr.neamar.kiss.dataprovider.ContactsProvider;
+import fr.neamar.kiss.pojo.ContactsPojo;
 
 public class IncomingSmsHandler extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         // Only handle SMS received
-        if (!intent.getAction().equals("android.provider.Telephony.SMS_RECEIVED")) {
+        if(!intent.getAction().equals("android.provider.Telephony.SMS_RECEIVED")) {
             return;
         }
 
         // Stop if contacts are not enabled
         DataHandler dataHandler = KissApplication.getDataHandler(context);
-        ContactProvider contactProvider = dataHandler.getContactProvider();
-        if (contactProvider == null) {
+        ContactsProvider contactsProvider = dataHandler.getContactsProvider();
+        if(contactsProvider == null) {
             // Contacts have been disabled from settings
             return;
         }
 
         // Get the SMS message passed in, if any
         Bundle bundle = intent.getExtras();
-        if (bundle == null) {
+        if(bundle == null) {
             return;
         }
 
@@ -39,11 +39,11 @@ public class IncomingSmsHandler extends BroadcastReceiver {
         Object[] pdus = (Object[]) bundle.get("pdus");
         SmsMessage msg = SmsMessage.createFromPdu((byte[]) pdus[0]);
 
-        // Now, retrieve the contact by its lookup key on our contactProvider
-        ContactPojo contactPojo = contactProvider.findByPhone(msg.getOriginatingAddress());
-        if (contactPojo != null) {
+        // Now, retrieve the contact by its lookup key on our contactsProvider
+        ContactsPojo contactPojo = contactsProvider.findByPhone(msg.getOriginatingAddress());
+        if(contactPojo != null) {
             // We have a match!
-            dataHandler.addToHistory(context, contactPojo.id);
+            dataHandler.addToHistory(contactPojo.id);
         }
     }
 }

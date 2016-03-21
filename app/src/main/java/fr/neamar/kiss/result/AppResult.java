@@ -41,7 +41,7 @@ public class AppResult extends Result {
 
     @Override
     public View display(final Context context, int position, View v) {
-        if (v == null)
+        if(v == null)
             v = inflateFromId(context, R.layout.item_app);
 
         TextView appName = (TextView) v.findViewById(R.id.item_app_name);
@@ -50,8 +50,11 @@ public class AppResult extends Result {
 
         final ImageView appIcon = (ImageView) v.findViewById(R.id.item_app_icon);
 
-        if (!PreferenceManager.getDefaultSharedPreferences(context).getBoolean("icons-hide", false)) {
-            if (position < 15) {
+        if(!PreferenceManager.getDefaultSharedPreferences(context).getBoolean("icons-hide", false)) {
+            // Display icon directy for first icons, and also for phones above lollipop
+            // (fix a weird recycling issue with ListView on Marshmallow,
+            // where the recycling occurs synchronously, before the handler)
+            if(position < 15 || Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
                 appIcon.setImageDrawable(this.getDrawable(context));
             } else {
                 // Do actions on a message queue to avoid performance issues on main thread
@@ -63,8 +66,7 @@ public class AppResult extends Result {
                     }
                 });
             }
-        }
-        else {
+        } else {
             appIcon.setVisibility(View.INVISIBLE);
         }
         return v;
@@ -73,31 +75,29 @@ public class AppResult extends Result {
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     protected PopupMenu buildPopupMenu(Context context, final RecordAdapter parent, View parentView) {
-        PopupMenu menu = new PopupMenu(context, parentView);
-        menu.getMenuInflater().inflate(R.menu.menu_item_app, menu.getMenu());
+        PopupMenu menu = inflatePopupMenu(R.menu.menu_item_app, context, parentView);
 
         try {
             // app installed under /system can't be uninstalled
             ApplicationInfo ai = context.getPackageManager().getApplicationInfo(this.appPojo.packageName, 0);
             // Need to AND the flags with SYSTEM:
-            if ((ai.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
+            if((ai.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
                 menu.getMenuInflater().inflate(R.menu.menu_item_app_uninstall, menu.getMenu());
             }
-        } catch (NameNotFoundException e) {
+        } catch(NameNotFoundException e) {
             // should not happen
         }
 
         //append root menu if available
-        if (KissApplication.getRootHandler(context).isRootActivated() && KissApplication.getRootHandler(context).isRootAvailable()) {
+        if(KissApplication.getRootHandler(context).isRootActivated() && KissApplication.getRootHandler(context).isRootAvailable()) {
             menu.getMenuInflater().inflate(R.menu.menu_item_app_root, menu.getMenu());
         }
-
         return menu;
     }
 
     @Override
     protected Boolean popupMenuClickHandler(Context context, RecordAdapter parent, MenuItem item) {
-        switch (item.getItemId()) {
+        switch(item.getItemId()) {
             case R.id.item_app_details:
                 launchAppDetails(context, appPojo);
                 return true;
@@ -109,9 +109,26 @@ public class AppResult extends Result {
             case R.id.item_app_hibernate:
                 hibernate(context, appPojo);
                 return true;
+            case R.id.item_exclude:
+                // remove item since it will be hiddden
+                parent.removeResult(this);
+                excludeFromAppList(context, appPojo);
+                return true;
         }
 
         return super.popupMenuClickHandler(context, parent, item);
+    }
+
+    private void excludeFromAppList(Context context, AppPojo appPojo) {
+        String excludedAppList = PreferenceManager.getDefaultSharedPreferences(context).
+              getString("excluded-apps-list", context.getPackageName() + ";");
+        PreferenceManager.getDefaultSharedPreferences(context).edit()
+              .putString("excluded-apps-list", excludedAppList + appPojo.packageName + ";").commit();
+        //remove app pojo from appProvider results - no need to reset handler
+        KissApplication.getDataHandler(context).getAppProvider().removeApp(appPojo);
+        KissApplication.getDataHandler(context).removeFromFavorites(appPojo, context);
+        Toast.makeText(context, R.string.excluded_app_list_added, Toast.LENGTH_LONG).show();
+
     }
 
     /**
@@ -119,13 +136,13 @@ public class AppResult extends Result {
      */
     private void launchAppDetails(Context context, AppPojo app) {
         Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                Uri.fromParts("package", app.packageName, null));
+              Uri.fromParts("package", app.packageName, null));
         context.startActivity(intent);
     }
 
     private void hibernate(Context context, AppPojo app) {
         String msg = context.getResources().getString(R.string.toast_hibernate_completed);
-        if (!KissApplication.getRootHandler(context).hibernateApp(appPojo.packageName)) {
+        if(!KissApplication.getRootHandler(context).hibernateApp(appPojo.packageName)) {
             msg = context.getResources().getString(R.string.toast_hibernate_error);
         }
 
@@ -137,19 +154,19 @@ public class AppResult extends Result {
      */
     private void launchUninstall(Context context, AppPojo app) {
         Intent intent = new Intent(Intent.ACTION_DELETE,
-                Uri.fromParts("package", app.packageName, null));
+              Uri.fromParts("package", app.packageName, null));
         context.startActivity(intent);
     }
 
     @Override
     public Drawable getDrawable(Context context) {
-        try {
-            if (icon == null)
-                icon = context.getPackageManager().getActivityIcon(className);
-            return icon;
-        } catch (NameNotFoundException e) {
-            return null;
+
+        if(icon == null) {
+            icon = KissApplication.getIconsHandler(context).getDrawableIconForPackage(className);
         }
+
+        return icon;
+
     }
 
     @Override
@@ -161,7 +178,7 @@ public class AppResult extends Result {
 
         try {
             context.startActivity(intent);
-        } catch (ActivityNotFoundException e) {
+        } catch(ActivityNotFoundException e) {
             // Application was just removed?
             Toast.makeText(context, R.string.application_not_found, Toast.LENGTH_LONG).show();
         }

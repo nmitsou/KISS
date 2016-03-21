@@ -25,10 +25,10 @@ public class RootHandler {
 
     public boolean isRootAvailable() {
 
-        if (isRootAvailable == null) {
+        if(isRootAvailable == null) {
             try {
                 isRootAvailable = executeRootShell(null);
-            } catch (Exception e) {
+            } catch(Exception e) {
                 isRootAvailable = false;
             }
         }
@@ -39,7 +39,7 @@ public class RootHandler {
     public boolean hibernateApp(String packageName) {
         try {
             return executeRootShell("am force-stop " + packageName);
-        } catch (Exception e) {
+        } catch(Exception e) {
             return false;
         }
     }
@@ -48,8 +48,8 @@ public class RootHandler {
         Process p = null;
         try {
             p = Runtime.getRuntime().exec("su");
-            //put command 
-            if (command != null && !command.trim().equals("")) {
+            //put command
+            if(command != null && !command.trim().equals("")) {
                 p.getOutputStream().write((command + "\n").getBytes());
             }
             //exit from su command
@@ -57,13 +57,13 @@ public class RootHandler {
             p.getOutputStream().flush();
             p.getOutputStream().close();
             int result = p.waitFor();
-            if (result != 0)
+            if(result != 0)
                 throw new Exception("Command execution failed " + result);
             return true;
-        } catch (Exception e) {
+        } catch(Exception e) {
             Log.e("simpleExecuteCommand", " " + e);
         } finally {
-            if (p != null) {
+            if(p != null) {
                 p.destroy();
             }
         }

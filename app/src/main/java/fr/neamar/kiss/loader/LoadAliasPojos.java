@@ -27,44 +27,44 @@ public class LoadAliasPojos extends LoadPojos<AliasPojo> {
         ArrayList<AliasPojo> alias = new ArrayList<>();
 
         String phoneApp = getApp(pm, Intent.ACTION_DIAL);
-        if (phoneApp != null) {
+        if(phoneApp != null) {
             String phoneAlias = context.getResources().getString(R.string.alias_phone);
             addAliasesPojo(alias, phoneAlias.split(","), phoneApp);
         }
 
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+        if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
             String contactApp = getAppByCategory(pm, Intent.CATEGORY_APP_CONTACTS);
-            if (contactApp != null) {
+            if(contactApp != null) {
                 String contactAlias = context.getResources().getString(R.string.alias_contacts);
                 addAliasesPojo(alias, contactAlias.split(","), contactApp);
             }
 
             String browserApp = getAppByCategory(pm, Intent.CATEGORY_APP_BROWSER);
-            if (browserApp != null) {
+            if(browserApp != null) {
                 String webAlias = context.getResources().getString(R.string.alias_web);
                 addAliasesPojo(alias, webAlias.split(","), browserApp);
             }
 
             String mailApp = getAppByCategory(pm, Intent.CATEGORY_APP_EMAIL);
-            if (mailApp != null) {
+            if(mailApp != null) {
                 String mailAlias = context.getResources().getString(R.string.alias_mail);
                 addAliasesPojo(alias, mailAlias.split(","), mailApp);
             }
 
             String marketApp = getAppByCategory(pm, Intent.CATEGORY_APP_MARKET);
-            if (marketApp != null) {
+            if(marketApp != null) {
                 String marketAlias = context.getResources().getString(R.string.alias_market);
                 addAliasesPojo(alias, marketAlias.split(","), marketApp);
             }
 
             String messagingApp = getAppByCategory(pm, Intent.CATEGORY_APP_MESSAGING);
-            if (messagingApp != null) {
+            if(messagingApp != null) {
                 String messagingAlias = context.getResources().getString(R.string.alias_messaging);
                 addAliasesPojo(alias, messagingAlias.split(","), messagingApp);
             }
 
             String clockApp = getClockApp(pm);
-            if (clockApp != null) {
+            if(clockApp != null) {
                 String clockAlias = context.getResources().getString(R.string.alias_clock);
                 addAliasesPojo(alias, clockAlias.split(","), clockApp);
             }
@@ -75,7 +75,7 @@ public class LoadAliasPojos extends LoadPojos<AliasPojo> {
     }
 
     private void addAliasesPojo(ArrayList<AliasPojo> alias, String[] aliases, String appInfo) {
-        for (String a : aliases) {
+        for(String a : aliases) {
             alias.add(makeAliasPojo(a, appInfo));
         }
     }
@@ -101,11 +101,11 @@ public class LoadAliasPojos extends LoadPojos<AliasPojo> {
 
     private String getApp(PackageManager pm, Intent lookingFor) {
         List<ResolveInfo> list = pm.queryIntentActivities(lookingFor, 0);
-        if (list.size() == 0) {
+        if(list.size() == 0) {
             return null;
         } else {
             return "app://" + list.get(0).activityInfo.applicationInfo.packageName + "/"
-                    + list.get(0).activityInfo.name;
+                  + list.get(0).activityInfo.name;
         }
     }
 
@@ -115,27 +115,27 @@ public class LoadAliasPojos extends LoadPojos<AliasPojo> {
         // Known clock implementations
         // See http://stackoverflow.com/questions/3590955/intent-to-launch-the-clock-application-on-android
         String clockImpls[][] = {
-                // Nexus
-                {"com.android.deskclock", "com.android.deskclock.DeskClock"},
-                // Samsung
-                {"com.sec.android.app.clockpackage", "com.sec.android.app.clockpackage.ClockPackage"},
-                // HTC
-                {"com.htc.android.worldclock", "com.htc.android.worldclock.WorldClockTabControl"},
-                // Standard Android
-                {"com.android.deskclock", "com.android.deskclock.AlarmClock"},
-                // New Android versions
-                {"com.google.android.deskclock", "com.android.deskclock.AlarmClock"},
-                // Froyo
-                {"com.google.android.deskclock", "com.android.deskclock.DeskClock"},
-                // Motorola
-                {"com.motorola.blur.alarmclock", "com.motorola.blur.alarmclock.AlarmClock"},
-                // Sony
-                {"com.sonyericsson.organizer", "com.sonyericsson.organizer.Organizer_WorldClock"},
-                // ASUS Tablets
-                {"com.asus.deskclock", "com.asus.deskclock.DeskClock"}
+              // Nexus
+              {"com.android.deskclock", "com.android.deskclock.DeskClock"},
+              // Samsung
+              {"com.sec.android.app.clockpackage", "com.sec.android.app.clockpackage.ClockPackage"},
+              // HTC
+              {"com.htc.android.worldclock", "com.htc.android.worldclock.WorldClockTabControl"},
+              // Standard Android
+              {"com.android.deskclock", "com.android.deskclock.AlarmClock"},
+              // New Android versions
+              {"com.google.android.deskclock", "com.android.deskclock.AlarmClock"},
+              // Froyo
+              {"com.google.android.deskclock", "com.android.deskclock.DeskClock"},
+              // Motorola
+              {"com.motorola.blur.alarmclock", "com.motorola.blur.alarmclock.AlarmClock"},
+              // Sony
+              {"com.sonyericsson.organizer", "com.sonyericsson.organizer.Organizer_WorldClock"},
+              // ASUS Tablets
+              {"com.asus.deskclock", "com.asus.deskclock.DeskClock"}
         };
 
-        for (String[] clockImpl : clockImpls) {
+        for(String[] clockImpl : clockImpls) {
             String packageName = clockImpl[0];
             String className = clockImpl[1];
             try {
@@ -145,7 +145,7 @@ public class LoadAliasPojos extends LoadPojos<AliasPojo> {
                 alarmClockIntent.setComponent(cn);
 
                 return "app://" + packageName + "/" + className;
-            } catch (PackageManager.NameNotFoundException e) {
+            } catch(PackageManager.NameNotFoundException e) {
                 // Try next suggestion, this one does not exists on the phone.
             }
         }

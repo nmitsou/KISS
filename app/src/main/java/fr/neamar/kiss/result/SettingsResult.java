@@ -9,20 +9,21 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import fr.neamar.kiss.R;
-import fr.neamar.kiss.pojo.SettingPojo;
+import fr.neamar.kiss.pojo.SettingsPojo;
 
-public class SettingResult extends Result {
-    private final SettingPojo settingPojo;
+public class SettingsResult extends Result {
+    private final SettingsPojo settingPojo;
 
-    public SettingResult(SettingPojo settingPojo) {
+    public SettingsResult(SettingsPojo settingPojo) {
         super();
         this.pojo = this.settingPojo = settingPojo;
     }
 
     @Override
     public View display(Context context, int position, View v) {
-        if (v == null)
+        if(v == null)
             v = inflateFromId(context, R.layout.item_setting);
 
         String settingPrefix = "<small><small>" + context.getString(R.string.settings_prefix) + "</small></small>";
@@ -39,7 +40,7 @@ public class SettingResult extends Result {
     @SuppressWarnings("deprecation")
     @Override
     public Drawable getDrawable(Context context) {
-        if (settingPojo.icon != -1) {
+        if(settingPojo.icon != -1) {
             return context.getResources().getDrawable(settingPojo.icon);
         }
 
@@ -49,6 +50,9 @@ public class SettingResult extends Result {
     @Override
     public void doLaunch(Context context, View v) {
         Intent intent = new Intent(settingPojo.settingName);
+        if(!settingPojo.packageName.isEmpty()) {
+            intent.setClassName(settingPojo.packageName, settingPojo.settingName);
+        }
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }

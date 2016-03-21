@@ -1,12 +1,10 @@
 package fr.neamar.kiss.loader;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 
 import java.util.ArrayList;
 
-import fr.neamar.kiss.MainActivity;
 import fr.neamar.kiss.dataprovider.Provider;
 import fr.neamar.kiss.pojo.Pojo;
 
@@ -34,8 +32,6 @@ public abstract class LoadPojos<T extends Pojo> extends AsyncTask<Void, Void, Ar
     protected void onPostExecute(ArrayList<T> result) {
         super.onPostExecute(result);
         provider.loadOver(result);
-        Intent i = new Intent(MainActivity.LOAD_OVER);
-        context.sendBroadcast(i);
     }
 
 }

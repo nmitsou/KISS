@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.preference.PreferenceManager;
 
 import fr.neamar.kiss.KissApplication;
+import fr.neamar.kiss.dataprovider.AppProvider;
 
 /**
  * This class gets called when an application is created or removed on the
@@ -20,30 +21,38 @@ public class NewAppInstalledHandler extends BroadcastReceiver {
     @Override
     public void onReceive(Context ctx, Intent intent) {
 
-        if (PreferenceManager.getDefaultSharedPreferences(ctx).getBoolean("enable-app-history", true))
+        if(PreferenceManager.getDefaultSharedPreferences(ctx).getBoolean("enable-app-history", true))
             // Insert into history new packages (not updated ones)
-            if ("android.intent.action.PACKAGE_ADDED".equals(intent.getAction()) && !intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
+            if("android.intent.action.PACKAGE_ADDED".equals(intent.getAction()) && !intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
                 // Add new package to history
                 String packageName = intent.getData().getSchemeSpecificPart();
 
                 Intent launchIntent = ctx.getPackageManager().getLaunchIntentForPackage(packageName);
-                if (launchIntent == null) {//for some plugin app
+                if(launchIntent == null) {//for some plugin app
                     return;
                 }
 
                 String className = launchIntent.getComponent().getClassName();
-                if (className != null) {
-                    KissApplication.getDataHandler(ctx).addToHistory(ctx, "app://" + packageName + "/" + className);
+                if(className != null) {
+                    KissApplication.getDataHandler(ctx)
+                          .addToHistory("app://" + packageName + "/" + className);
                 }
             }
 
-        if ("android.intent.action.PACKAGE_REMOVED".equals(intent.getAction())) {
+        if("android.intent.action.PACKAGE_REMOVED".equals(intent.getAction())) {
             // Removed all installed shortcuts
             String packageName = intent.getData().getSchemeSpecificPart();
-            KissApplication.getDataHandler(ctx).getShortcutProvider().removeShortcuts(packageName);
+            KissApplication.getDataHandler(ctx).removeShortcuts(packageName);
         }
 
-        KissApplication.resetDataHandler(ctx);
+        KissApplication.resetIconsHandler(ctx);
+
+        // Reload application list
+        final AppProvider provider = KissApplication.getDataHandler(ctx).getAppProvider();
+        if(provider != null) {
+            provider.reload();
+        }
+
     }
 
 }

@@ -8,8 +8,8 @@ import android.util.Log;
 
 import fr.neamar.kiss.DataHandler;
 import fr.neamar.kiss.KissApplication;
-import fr.neamar.kiss.dataprovider.ContactProvider;
-import fr.neamar.kiss.pojo.ContactPojo;
+import fr.neamar.kiss.dataprovider.ContactsProvider;
+import fr.neamar.kiss.pojo.ContactsPojo;
 
 public class IncomingCallHandler extends BroadcastReceiver {
 
@@ -18,14 +18,14 @@ public class IncomingCallHandler extends BroadcastReceiver {
 
         try {
             DataHandler dataHandler = KissApplication.getDataHandler(context);
-            ContactProvider contactProvider = dataHandler.getContactProvider();
+            ContactsProvider contactsProvider = dataHandler.getContactsProvider();
 
             // Stop if contacts are not enabled
-            if (contactProvider == null) {
+            if(contactsProvider == null) {
                 return;
             }
 
-            if (intent.getStringExtra(TelephonyManager.EXTRA_STATE).equals(TelephonyManager.EXTRA_STATE_RINGING)) {
+            if(intent.getStringExtra(TelephonyManager.EXTRA_STATE).equals(TelephonyManager.EXTRA_STATE_RINGING)) {
                 String phoneNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
 
                 if(phoneNumber == null) {
@@ -33,12 +33,12 @@ public class IncomingCallHandler extends BroadcastReceiver {
                     return;
                 }
 
-                ContactPojo contactPojo = contactProvider.findByPhone(phoneNumber);
-                if (contactPojo != null) {
-                    dataHandler.addToHistory(context, contactPojo.id);
+                ContactsPojo contactPojo = contactsProvider.findByPhone(phoneNumber);
+                if(contactPojo != null) {
+                    dataHandler.addToHistory(contactPojo.id);
                 }
             }
-        } catch (Exception e) {
+        } catch(Exception e) {
             Log.e("Phone Receive Error", " " + e);
         }
     }

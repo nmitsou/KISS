@@ -6,6 +6,8 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.preference.PreferenceManager;
+import android.support.annotation.MenuRes;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
@@ -14,18 +16,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupMenu;
 import android.widget.Toast;
+
 import fr.neamar.kiss.KissApplication;
+import fr.neamar.kiss.MainActivity;
 import fr.neamar.kiss.R;
 import fr.neamar.kiss.adapter.RecordAdapter;
 import fr.neamar.kiss.db.DBHelper;
 import fr.neamar.kiss.pojo.AppPojo;
-import fr.neamar.kiss.pojo.ContactPojo;
+import fr.neamar.kiss.pojo.ContactsPojo;
 import fr.neamar.kiss.pojo.PhonePojo;
 import fr.neamar.kiss.pojo.Pojo;
 import fr.neamar.kiss.pojo.SearchPojo;
-import fr.neamar.kiss.pojo.SettingPojo;
-import fr.neamar.kiss.pojo.ShortcutPojo;
-import fr.neamar.kiss.pojo.TogglePojo;
+import fr.neamar.kiss.pojo.SettingsPojo;
+import fr.neamar.kiss.pojo.ShortcutsPojo;
+import fr.neamar.kiss.pojo.TogglesPojo;
 import fr.neamar.kiss.searcher.QueryInterface;
 
 public abstract class Result {
@@ -35,20 +39,20 @@ public abstract class Result {
     Pojo pojo = null;
 
     public static Result fromPojo(QueryInterface parent, Pojo pojo) {
-        if (pojo instanceof AppPojo)
+        if(pojo instanceof AppPojo)
             return new AppResult((AppPojo) pojo);
-        else if (pojo instanceof ContactPojo)
-            return new ContactResult(parent, (ContactPojo) pojo);
-        else if (pojo instanceof SearchPojo)
+        else if(pojo instanceof ContactsPojo)
+            return new ContactsResult(parent, (ContactsPojo) pojo);
+        else if(pojo instanceof SearchPojo)
             return new SearchResult((SearchPojo) pojo);
-        else if (pojo instanceof SettingPojo)
-            return new SettingResult((SettingPojo) pojo);
-        else if (pojo instanceof TogglePojo)
-            return new ToggleResult((TogglePojo) pojo);
-        else if (pojo instanceof PhonePojo)
+        else if(pojo instanceof SettingsPojo)
+            return new SettingsResult((SettingsPojo) pojo);
+        else if(pojo instanceof TogglesPojo)
+            return new TogglesResult((TogglesPojo) pojo);
+        else if(pojo instanceof PhonePojo)
             return new PhoneResult((PhonePojo) pojo);
-        else if (pojo instanceof ShortcutPojo)
-            return new ShortcutResult((ShortcutPojo) pojo);
+        else if(pojo instanceof ShortcutsPojo)
+            return new ShortcutsResult((ShortcutsPojo) pojo);
 
 
         throw new RuntimeException("Unable to create a result from POJO");
@@ -88,8 +92,20 @@ public abstract class Result {
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     PopupMenu buildPopupMenu(Context context, final RecordAdapter parent, View parentView) {
+        return inflatePopupMenu(R.menu.menu_item_default, context, parentView);
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    protected PopupMenu inflatePopupMenu(@MenuRes int menuId, Context context, View parentView) {
         PopupMenu menu = new PopupMenu(context, parentView);
-        menu.getMenuInflater().inflate(R.menu.menu_item_default, menu.getMenu());
+        menu.getMenuInflater().inflate(menuId, menu.getMenu());
+
+        // If app already pinned, do not display the "add to favorite" option
+        String favApps = PreferenceManager.getDefaultSharedPreferences(context).
+              getString("favorite-apps-list", "");
+        if(favApps.contains(this.pojo.id + ";")) {
+            menu.getMenu().removeItem(R.id.item_favorites_add);
+        }
 
         return menu;
     }
@@ -101,12 +117,21 @@ public abstract class Result {
      * @return Works in the same way as onOptionsItemSelected, return true if the action has been handled, false otherwise
      */
     Boolean popupMenuClickHandler(Context context, RecordAdapter parent, MenuItem item) {
-        switch (item.getItemId()) {
+        switch(item.getItemId()) {
             case R.id.item_remove:
                 removeItem(context, parent);
                 return true;
+            case R.id.item_favorites_add:
+                launchAddToFavorites(context, pojo);
+                break;
         }
         return false;
+    }
+
+    private void launchAddToFavorites(Context context, Pojo app) {
+        String msg = context.getResources().getString(R.string.toast_favorites_added);
+        KissApplication.getDataHandler(context).addToFavorites((MainActivity) context, app.id);
+        Toast.makeText(context, String.format(msg, app.name), Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -165,7 +190,7 @@ public abstract class Result {
      */
     View inflateFromId(Context context, int id) {
         LayoutInflater vi = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+              .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         return vi.inflate(id, null);
     }
 
@@ -176,7 +201,7 @@ public abstract class Result {
      * @return text displayable on a textview
      */
     Spanned enrichText(String text) {
-        return Html.fromHtml(text.replaceAll("\\{(.*)\\}", "<font color=#4caf50>$1</font>"));
+        return Html.fromHtml(text.replaceAll("\\{", "<font color=#4caf50>").replaceAll("\\}", "</font>"));
     }
 
     /**
@@ -186,19 +211,19 @@ public abstract class Result {
      */
     void recordLaunch(Context context) {
         // Save in history
-        KissApplication.getDataHandler(context).addToHistory(context, pojo.id);
+        KissApplication.getDataHandler(context).addToHistory(pojo.id);
     }
 
     public void deleteRecord(Context context) {
         DBHelper.removeFromHistory(context, pojo.id);
     }
-    
+
     /*
-     * Get fill color from theme 
-     * 
+     * Get fill color from theme
+     *
      */
     public int getThemeFillColor(Context context) {
-        int[] attrs = new int[] { R.attr.resultColor /* index 0 */};
+        int[] attrs = new int[] {R.attr.resultColor /* index 0 */};
         TypedArray ta = context.obtainStyledAttributes(attrs);
         return ta.getColor(0, Color.WHITE);
     }

@@ -8,10 +8,12 @@ import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.provider.Settings;
 import android.util.Log;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
 import fr.neamar.kiss.KissApplication;
-import fr.neamar.kiss.pojo.TogglePojo;
+import fr.neamar.kiss.pojo.TogglesPojo;
 
 public class TogglesHandler {
     private final ConnectivityManager connectivityManager;
@@ -27,7 +29,7 @@ public class TogglesHandler {
      */
     public TogglesHandler(Context context) {
         this.connectivityManager = (ConnectivityManager) context
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
+              .getSystemService(Context.CONNECTIVITY_SERVICE);
         this.wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         this.bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         this.audioManager = ((AudioManager) context.getSystemService(Context.AUDIO_SERVICE));
@@ -40,9 +42,9 @@ public class TogglesHandler {
      * @param pojo item to look for
      * @return item state
      */
-    public Boolean getState(TogglePojo pojo) {
+    public Boolean getState(TogglesPojo pojo) {
         try {
-            switch (pojo.settingName) {
+            switch(pojo.settingName) {
                 case "wifi":
                     return getWifiState();
                 case "data":
@@ -61,16 +63,16 @@ public class TogglesHandler {
                     Log.e("wtf", "Unsupported toggle for reading: " + pojo.settingName);
                     return false;
             }
-        } catch (Exception e) {
+        } catch(Exception e) {
             e.printStackTrace();
             Log.w("log", "Unsupported toggle for device: " + pojo.settingName);
             return null;
         }
     }
 
-    public void setState(TogglePojo pojo, Boolean state) {
+    public void setState(TogglesPojo pojo, Boolean state) {
         try {
-            switch (pojo.settingName) {
+            switch(pojo.settingName) {
                 case "wifi":
                     setWifiState(state);
                     break;
@@ -94,7 +96,7 @@ public class TogglesHandler {
                     Log.e("wtf", "Unsupported toggle for update: " + pojo.settingName);
                     break;
             }
-        } catch (Exception e) {
+        } catch(Exception e) {
             e.printStackTrace();
             Log.w("log", "Unsupported toggle for device: " + pojo.settingName);
         }
@@ -114,7 +116,7 @@ public class TogglesHandler {
             dataMtd = ConnectivityManager.class.getDeclaredMethod("getMobileDataEnabled");
             dataMtd.setAccessible(true);
             return (Boolean) dataMtd.invoke(connectivityManager);
-        } catch (NoSuchMethodException | IllegalArgumentException | InvocationTargetException | IllegalAccessException e) {
+        } catch(NoSuchMethodException | IllegalArgumentException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
         }
         return false;
@@ -124,10 +126,10 @@ public class TogglesHandler {
         Method dataMtd;
         try {
             dataMtd = ConnectivityManager.class.getDeclaredMethod("setMobileDataEnabled",
-                    boolean.class);
+                  boolean.class);
             dataMtd.setAccessible(true);
             dataMtd.invoke(connectivityManager, state);
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
+        } catch(NoSuchMethodException | InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
             e.printStackTrace();
         }
     }
@@ -137,7 +139,7 @@ public class TogglesHandler {
     }
 
     private void setBluetoothState(Boolean state) {
-        if (state)
+        if(state)
             bluetoothAdapter.enable();
         else
             bluetoothAdapter.disable();
@@ -160,11 +162,11 @@ public class TogglesHandler {
     }
 
     private void setSilentState(Boolean state) {
-        if (!state) {
+        if(!state) {
             audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
             audioManager.setStreamVolume(AudioManager.STREAM_RING,
-                    audioManager.getStreamVolume(AudioManager.STREAM_RING),
-                    AudioManager.FLAG_PLAY_SOUND);
+                  audioManager.getStreamVolume(AudioManager.STREAM_RING),
+                  AudioManager.FLAG_PLAY_SOUND);
         } else {
             audioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
             audioManager.setStreamVolume(AudioManager.STREAM_RING, 0, AudioManager.FLAG_VIBRATE);
@@ -178,12 +180,12 @@ public class TogglesHandler {
     private void setSyncState(Boolean state) {
         ContentResolver.setMasterSyncAutomatically(state);
     }
-    
+
     private Boolean getAutorotationState() {
-        return android.provider.Settings.System.getInt(this.contentResolver,Settings.System.ACCELEROMETER_ROTATION, 0) == 1;
+        return android.provider.Settings.System.getInt(this.contentResolver, Settings.System.ACCELEROMETER_ROTATION, 0) == 1;
     }
 
     private void setAutorotationState(Boolean state) {
-        android.provider.Settings.System.putInt(this.contentResolver,Settings.System.ACCELEROMETER_ROTATION, (state) ? 1 : 0 );
+        android.provider.Settings.System.putInt(this.contentResolver, Settings.System.ACCELEROMETER_ROTATION, (state) ? 1 : 0);
     }
 }

@@ -27,10 +27,10 @@ public class QuerySearcher extends Searcher {
     protected List<Pojo> doInBackground(Void... voids) {
         // Ask for records
         final ArrayList<Pojo> pojos = KissApplication.getDataHandler(activity).getResults(
-                activity, query);
+              activity, query);
 
         // Trim items
-        if (pojos.size() > MAX_RECORDS) {
+        if(pojos.size() > MAX_RECORDS) {
             return pojos.subList(0, MAX_RECORDS);
         }
 

@@ -18,23 +18,23 @@ public class RootModePreference extends CheckBoxPreference {
 
     @Override
     protected void onClick() {
-        if (!isChecked() && !KissApplication.getRootHandler(getContext()).isRootAvailable()) {
+        if(!isChecked() && !KissApplication.getRootHandler(getContext()).isRootAvailable()) {
             //show error dialog
             new AlertDialog.Builder(getContext()).setMessage(R.string.root_mode_error)
-                    .setPositiveButton(android.R.string.ok, new OnClickListener() {
+                  .setPositiveButton(android.R.string.ok, new OnClickListener() {
 
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // does nothing
-                        }
-                    }).show();
+                      @Override
+                      public void onClick(DialogInterface dialog, int which) {
+                          // does nothing
+                      }
+                  }).show();
         } else {
             super.onClick();
         }
 
         try {
             KissApplication.resetRootHandler(getContext());
-        } catch (NullPointerException e) {
+        } catch(NullPointerException e) {
             // uninitialized roothandler.
         }
     }

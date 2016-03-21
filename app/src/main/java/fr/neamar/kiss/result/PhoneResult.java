@@ -28,7 +28,7 @@ public class PhoneResult extends Result {
 
     @Override
     public View display(Context context, int position, View v) {
-        if (v == null)
+        if(v == null)
             v = inflateFromId(context, R.layout.item_phone);
 
         TextView appName = (TextView) v.findViewById(R.id.item_phone_text);
@@ -43,15 +43,12 @@ public class PhoneResult extends Result {
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     protected PopupMenu buildPopupMenu(Context context, final RecordAdapter parent, View parentView) {
-        PopupMenu menu = new PopupMenu(context, parentView);
-        menu.getMenuInflater().inflate(R.menu.menu_item_phone, menu.getMenu());
-
-        return menu;
+        return inflatePopupMenu(R.menu.menu_item_phone, context, parentView);
     }
 
     @Override
     protected Boolean popupMenuClickHandler(Context context, RecordAdapter parent, MenuItem item) {
-        switch (item.getItemId()) {
+        switch(item.getItemId()) {
             case R.id.item_phone_createcontact:
                 // Create a new contact with this phone number
                 Intent createIntent = new Intent(Intent.ACTION_INSERT);

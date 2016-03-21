@@ -45,7 +45,7 @@ public class ImprovedQuickContactBadge extends RoundedQuickContactBadge {
     @Override
     public void onClick(View v) {
         super.onClick(v);
-        if (mExtraOnClickListener != null) {
+        if(mExtraOnClickListener != null) {
             mExtraOnClickListener.onClick(v);
         }
     }

@@ -13,13 +13,13 @@ import java.util.ArrayList;
 
 import fr.neamar.kiss.KissApplication;
 import fr.neamar.kiss.result.AppResult;
-import fr.neamar.kiss.result.ContactResult;
+import fr.neamar.kiss.result.ContactsResult;
 import fr.neamar.kiss.result.PhoneResult;
 import fr.neamar.kiss.result.Result;
 import fr.neamar.kiss.result.SearchResult;
-import fr.neamar.kiss.result.SettingResult;
-import fr.neamar.kiss.result.ShortcutResult;
-import fr.neamar.kiss.result.ToggleResult;
+import fr.neamar.kiss.result.SettingsResult;
+import fr.neamar.kiss.result.ShortcutsResult;
+import fr.neamar.kiss.result.TogglesResult;
 import fr.neamar.kiss.searcher.QueryInterface;
 
 public class RecordAdapter extends ArrayAdapter<Result> {
@@ -43,19 +43,19 @@ public class RecordAdapter extends ArrayAdapter<Result> {
     }
 
     public int getItemViewType(int position) {
-        if (results.get(position) instanceof AppResult)
+        if(results.get(position) instanceof AppResult)
             return 0;
-        else if (results.get(position) instanceof SearchResult)
+        else if(results.get(position) instanceof SearchResult)
             return 1;
-        else if (results.get(position) instanceof ContactResult)
+        else if(results.get(position) instanceof ContactsResult)
             return 2;
-        else if (results.get(position) instanceof ToggleResult)
+        else if(results.get(position) instanceof TogglesResult)
             return 3;
-        else if (results.get(position) instanceof SettingResult)
+        else if(results.get(position) instanceof SettingsResult)
             return 4;
-        else if (results.get(position) instanceof PhoneResult)
+        else if(results.get(position) instanceof PhoneResult)
             return 5;
-        else if (results.get(position) instanceof ShortcutResult)
+        else if(results.get(position) instanceof ShortcutsResult)
             return 6;
         else
             return -1;
@@ -70,13 +70,17 @@ public class RecordAdapter extends ArrayAdapter<Result> {
     public void onLongClick(final int pos, View v) {
         // Popup menu is not available before Honeycomb.
         // We simply remove the item from history
-        if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+        if(android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
             removeResult(results.get(pos));
             return;
         }
 
         PopupMenu menu = results.get(pos).getPopupMenu(getContext(), this, v);
-        menu.show();
+
+        //check if menu contains elements and if yes show it
+        if(menu.getMenu().size() > 0) {
+            menu.show();
+        }
     }
 
     public void onClick(final int position, View v) {
@@ -85,7 +89,7 @@ public class RecordAdapter extends ArrayAdapter<Result> {
         try {
             result = results.get(position);
             result.launch(getContext(), v);
-        } catch (ArrayIndexOutOfBoundsException ignored) {
+        } catch(ArrayIndexOutOfBoundsException ignored) {
             return;
         }
 

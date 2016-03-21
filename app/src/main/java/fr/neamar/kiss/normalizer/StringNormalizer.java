@@ -35,7 +35,7 @@ public class StringNormalizer {
         StringBuilder charBuffer = new StringBuilder(2);
 
         int inputOffset = 0, inputLength = input.length();
-        while (inputOffset < inputLength) {
+        while(inputOffset < inputLength) {
             int inputChar = input.codePointAt(inputOffset);
 
             // Decompose codepoint at given position
@@ -45,14 +45,14 @@ public class StringNormalizer {
 
             // `inputChar` codepoint may be decomposed to four (or maybe even more) new code points
             int decomposedCharOffset = 0;
-            while (decomposedCharOffset < decomposedCharString.length()) {
+            while(decomposedCharOffset < decomposedCharString.length()) {
                 int resultChar = decomposedCharString.codePointAt(decomposedCharOffset);
 
                 // Skip characters for some unicode character classes, including:
                 //  * combining characters produced by the NFKD normalizer above
                 //  * dashes
                 // See the method's description for more information
-                switch (Character.getType(resultChar)) {
+                switch(Character.getType(resultChar)) {
                     case Character.NON_SPACING_MARK:
                     case Character.COMBINING_SPACING_MARK:
                         // Some combining character found

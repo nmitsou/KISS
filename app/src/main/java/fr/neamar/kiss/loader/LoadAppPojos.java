@@ -9,6 +9,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -16,15 +17,11 @@ import fr.neamar.kiss.pojo.AppPojo;
 
 public class LoadAppPojos extends LoadPojos<AppPojo> {
 
-    private static String KISS_PACKAGE_NAME;
     private static SharedPreferences prefs;
 
     public LoadAppPojos(Context context) {
         super(context, "app://");
-
-        KISS_PACKAGE_NAME = context.getPackageName();
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
-
     }
 
     @Override
@@ -37,20 +34,23 @@ public class LoadAppPojos extends LoadPojos<AppPojo> {
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 
         final List<ResolveInfo> appsInfo = manager.queryIntentActivities(mainIntent, 0);
-        if (prefs.getString("sort-apps", "alphabetical").equals("invertedAlphabetical")) {
+        if(prefs.getString("sort-apps", "alphabetical").equals("invertedAlphabetical")) {
             Collections.sort(appsInfo, Collections.reverseOrder(new ResolveInfo.DisplayNameComparator(manager)));
-        }
-        else {
+        } else {
             Collections.sort(appsInfo, new ResolveInfo.DisplayNameComparator(manager));
         }
 
         ArrayList<AppPojo> apps = new ArrayList<>();
-        for (ResolveInfo info : appsInfo) {
-            if (!KISS_PACKAGE_NAME.equals(info.activityInfo.applicationInfo.packageName)) {
+        String excludedAppList = PreferenceManager.getDefaultSharedPreferences(context).
+              getString("excluded-apps-list", context.getPackageName() + ";");
+        List excludedApps = Arrays.asList(excludedAppList.split(";"));
+
+        for(ResolveInfo info : appsInfo) {
+            if(!excludedApps.contains(info.activityInfo.applicationInfo.packageName)) {
                 AppPojo app = new AppPojo();
 
                 app.id = pojoScheme + info.activityInfo.applicationInfo.packageName + "/"
-                        + info.activityInfo.name;
+                      + info.activityInfo.name;
                 app.setName(info.loadLabel(manager).toString());
 
                 app.packageName = info.activityInfo.applicationInfo.packageName;

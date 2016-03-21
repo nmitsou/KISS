@@ -128,7 +128,10 @@ public class MainActivity extends ListActivity implements QueryInterface {
             setTheme(R.style.AppThemeSemiTransparent);
         } else if(theme.equals("semi-transparent-dark")) {
             setTheme(R.style.AppThemeSemiTransparentDark);
+        } else if(theme.equals("transparent-dark")) {
+            setTheme(R.style.AppThemeTransparentDark);
         }
+
 
         super.onCreate(savedInstanceState);
 
@@ -196,26 +199,25 @@ public class MainActivity extends ListActivity implements QueryInterface {
 
         // On validate, launch first record
         searchEditText.setOnEditorActionListener(new OnEditorActionListener() {
-
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 RecordAdapter adapter = ((RecordAdapter) getListView().getAdapter());
-
                 adapter.onClick(adapter.getCount() - 1, null);
-
                 return true;
             }
         });
 
-        String miniUi = prefs.getString("mini-ui", "history");
-        if(!miniUi.equals("history-intro")) {
+        if(!prefs.getString("mini-ui", "history").equals("history-intro")) {
             searchEditText.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //show history only if no search text is added
-                    if(((EditText) v).getText().toString().isEmpty()) {
-                        searcher = new HistorySearcher(MainActivity.this);
-                        searcher.execute();
+                    //if not on the application list and not searching for something
+                    if((kissBar.getVisibility() != View.VISIBLE) && (searchEditText.getText().toString().isEmpty())) {
+                        //if list is empty
+                        if((MainActivity.this.getListAdapter() == null) || (MainActivity.this.getListAdapter().getCount() == 0)) {
+                            searcher = new HistorySearcher(MainActivity.this);
+                            searcher.execute();
+                        }
                     }
                 }
             });
@@ -248,13 +250,6 @@ public class MainActivity extends ListActivity implements QueryInterface {
         // Initialize widgets management
         appWidgetManager = AppWidgetManager.getInstance(this);
         appWidgetHost = new AppWidgetHost(this, R.id.appWidgetHostId);
-        findViewById(R.id.widgets).setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                pickWidget();
-                return true;
-            }
-        });
     }
 
     /**
@@ -346,7 +341,7 @@ public class MainActivity extends ListActivity implements QueryInterface {
         LinearLayout widgets = (LinearLayout) findViewById(R.id.widgets);
         int widgetsCount = widgets.getChildCount();
         int[] ids = new int[widgetsCount];
-        for(int i=0; i<widgetsCount; ++i) {
+        for(int i = 0; i < widgetsCount; ++i) {
             AppWidgetHostView widgetView = (AppWidgetHostView) widgets.getChildAt(i);
             ids[i] = widgetView.getAppWidgetId();
             Log.d("KISS", "saving widget: " + ids[i]);
@@ -360,7 +355,7 @@ public class MainActivity extends ListActivity implements QueryInterface {
     @Override
     protected void onRestoreInstanceState(Bundle state) {
         int[] ids = state.getIntArray(KEY_WIDGET_IDS);
-        for(int i=0; i<ids.length; ++i) {
+        for(int i = 0; i < ids.length; ++i) {
             LinearLayout widgets = (LinearLayout) findViewById(R.id.widgets);
             createWidget(ids[i]);
         }
@@ -409,12 +404,12 @@ public class MainActivity extends ListActivity implements QueryInterface {
                 default:
                     break;
             }
-        } else if (resultCode == RESULT_CANCELED && data != null) {
-			int appWidgetId = data.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
-			if (appWidgetId != -1) {
-				appWidgetHost.deleteAppWidgetId(appWidgetId);
-			}
-		}
+        } else if(resultCode == RESULT_CANCELED && data != null) {
+            int appWidgetId = data.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
+            if(appWidgetId != -1) {
+                appWidgetHost.deleteAppWidgetId(appWidgetId);
+            }
+        }
     }
 
     /**
@@ -455,10 +450,10 @@ public class MainActivity extends ListActivity implements QueryInterface {
         Log.d("KISS", "Widget height:" + hostView.getHeight());
     }
 
-	/**
-	 * Removes the widget displayed by this AppWidgetHostView.
-	 */
-	public void removeWidget(AppWidgetHostView hostView) {
+    /**
+     * Removes the widget displayed by this AppWidgetHostView.
+     */
+    public void removeWidget(AppWidgetHostView hostView) {
         appWidgetHost.deleteAppWidgetId(hostView.getAppWidgetId());
         ViewGroup widgetGroup = (ViewGroup) findViewById(R.id.widgets);
         widgetGroup.removeView(hostView);
@@ -466,7 +461,7 @@ public class MainActivity extends ListActivity implements QueryInterface {
         if(widgetGroup.getChildCount() == 0) {
             findViewById(R.id.intro).setVisibility(View.VISIBLE);
         }
-	}
+    }
 
     /**
      * Empty text field on resume and show keyboard
@@ -638,7 +633,8 @@ public class MainActivity extends ListActivity implements QueryInterface {
     public void onFavoriteButtonClicked(View favorite) {
 
         // Favorites handling
-        Pojo pojo = KissApplication.getDataHandler(MainActivity.this).getFavorites(MainActivity.this, tryToRetrieve)
+
+        Pojo pojo = KissApplication.getDataHandler(MainActivity.this).getFavorites(tryToRetrieve)
               .get(Integer.parseInt((String) favorite.getTag()));
         final Result result = Result.fromPojo(MainActivity.this, pojo);
 
@@ -728,31 +724,7 @@ public class MainActivity extends ListActivity implements QueryInterface {
             }
 
             // Retrieve favorites. Try to retrieve more, since some favorites can't be displayed (e.g. search queries)
-            ArrayList<Pojo> favoritesPojo = KissApplication.getDataHandler(MainActivity.this)
-                  .getFavorites(MainActivity.this, tryToRetrieve);
-
-            if(favoritesPojo.size() == 0) {
-                Toast toast = Toast.makeText(MainActivity.this, getString(R.string.no_favorites), Toast.LENGTH_SHORT);
-                toast.show();
-            }
-
-            // Don't look for items after favIds length, we won't be able to display them
-            for(int i = 0; i < Math.min(favsIds.length, favoritesPojo.size()); i++) {
-                Pojo pojo = favoritesPojo.get(i);
-                ImageView image = (ImageView) findViewById(favsIds[i]);
-
-                Result result = Result.fromPojo(MainActivity.this, pojo);
-                Drawable drawable = result.getDrawable(MainActivity.this);
-                if(drawable != null)
-                    image.setImageDrawable(drawable);
-                image.setVisibility(View.VISIBLE);
-                image.setContentDescription(pojo.displayName);
-            }
-
-            // Hide empty favorites (not enough favorites yet)
-            for(int i = favoritesPojo.size(); i < favsIds.length; i++) {
-                findViewById(favsIds[i]).setVisibility(View.GONE);
-            }
+            retrieveFavorites();
 
             hideKeyboard();
         } else {
@@ -772,6 +744,34 @@ public class MainActivity extends ListActivity implements QueryInterface {
                 kissBar.setVisibility(View.GONE);
             }
             searchEditText.setText("");
+        }
+    }
+
+    public void retrieveFavorites() {
+        ArrayList<Pojo> favoritesPojo = KissApplication.getDataHandler(MainActivity.this)
+              .getFavorites(tryToRetrieve);
+
+        if(favoritesPojo.size() == 0) {
+            Toast toast = Toast.makeText(MainActivity.this, getString(R.string.no_favorites), Toast.LENGTH_SHORT);
+            toast.show();
+        }
+
+        // Don't look for items after favIds length, we won't be able to display them
+        for(int i = 0; i < Math.min(favsIds.length, favoritesPojo.size()); i++) {
+            Pojo pojo = favoritesPojo.get(i);
+            ImageView image = (ImageView) findViewById(favsIds[i]);
+
+            Result result = Result.fromPojo(MainActivity.this, pojo);
+            Drawable drawable = result.getDrawable(MainActivity.this);
+            if(drawable != null)
+                image.setImageDrawable(drawable);
+            image.setVisibility(View.VISIBLE);
+            image.setContentDescription(pojo.displayName);
+        }
+
+        // Hide empty favorites (not enough favorites yet)
+        for(int i = favoritesPojo.size(); i < favsIds.length; i++) {
+            findViewById(favsIds[i]).setVisibility(View.GONE);
         }
     }
 
@@ -833,6 +833,10 @@ public class MainActivity extends ListActivity implements QueryInterface {
         searchEditText.requestFocus();
         InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         mgr.showSoftInput(searchEditText, InputMethodManager.SHOW_IMPLICIT);
+    }
+
+    public int getFavIconsSize() {
+        return favsIds.length;
     }
 
     class WidgetContextMenuInfo implements ContextMenu.ContextMenuInfo {

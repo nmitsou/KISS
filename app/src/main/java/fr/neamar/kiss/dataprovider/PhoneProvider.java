@@ -1,6 +1,5 @@
 package fr.neamar.kiss.dataprovider;
 
-import android.content.Context;
 import android.content.pm.PackageManager;
 
 import java.util.ArrayList;
@@ -14,10 +13,11 @@ public class PhoneProvider extends Provider<PhonePojo> {
     public static final String PHONE_SCHEME = "phone://";
     private boolean deviceIsPhone = false;
 
-    public PhoneProvider(Context context) {
-        super(new LoadPhonePojos(context));
+    @Override
+    public void reload() {
+        this.initialize(new LoadPhonePojos(this));
 
-        PackageManager pm = context.getPackageManager();
+        PackageManager pm = this.getPackageManager();
         deviceIsPhone = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
     }
 
@@ -25,7 +25,7 @@ public class PhoneProvider extends Provider<PhonePojo> {
         ArrayList<Pojo> pojos = new ArrayList<>();
 
         // Append an item only if query looks like a phone number and device has phone capabilities
-        if (deviceIsPhone && query.matches("^([0-9+ .-]{2,}|[*#]{1,3}[0-9]{1,3}[*a-zA-Z0-9]*#)$")) {
+        if(deviceIsPhone && query.matches("^([0-9+ .-]{2,}|[*#]{1,3}[0-9]{1,3}[*a-zA-Z0-9]*#)$")) {
             pojos.add(getResult(query));
         }
 
@@ -42,6 +42,7 @@ public class PhoneProvider extends Provider<PhonePojo> {
         pojo.id = PHONE_SCHEME + phoneNumber;
         pojo.phone = phoneNumber;
         pojo.relevance = 20;
+        pojo.name = phoneNumber;
         return pojo;
     }
 }

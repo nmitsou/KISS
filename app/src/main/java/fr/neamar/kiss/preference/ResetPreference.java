@@ -20,11 +20,11 @@ public class ResetPreference extends DialogPreference {
     @Override
     public void onClick(DialogInterface dialog, int which) {
         super.onClick(dialog, which);
-        if (which == DialogInterface.BUTTON_POSITIVE) {
+        if(which == DialogInterface.BUTTON_POSITIVE) {
             getContext().deleteDatabase(DB.DB_NAME);
-            KissApplication.resetDataHandler(getContext());
+            KissApplication.getDataHandler(getContext()).reloadAll();
             PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
-                    .putBoolean("layout-updated", true).commit();
+                  .putBoolean("layout-updated", true).commit();
 
             Toast.makeText(getContext(), R.string.history_erased, Toast.LENGTH_LONG).show();
         }

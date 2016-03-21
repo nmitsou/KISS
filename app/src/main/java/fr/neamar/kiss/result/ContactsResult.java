@@ -23,15 +23,15 @@ import java.io.InputStream;
 import fr.neamar.kiss.KissApplication;
 import fr.neamar.kiss.R;
 import fr.neamar.kiss.adapter.RecordAdapter;
-import fr.neamar.kiss.pojo.ContactPojo;
+import fr.neamar.kiss.pojo.ContactsPojo;
 import fr.neamar.kiss.searcher.QueryInterface;
 import fr.neamar.kiss.ui.ImprovedQuickContactBadge;
 
-public class ContactResult extends Result {
-    private final ContactPojo contactPojo;
+public class ContactsResult extends Result {
+    private final ContactsPojo contactPojo;
     private final QueryInterface queryInterface;
 
-    public ContactResult(QueryInterface queryInterface, ContactPojo contactPojo) {
+    public ContactsResult(QueryInterface queryInterface, ContactsPojo contactPojo) {
         super();
         this.pojo = this.contactPojo = contactPojo;
         this.queryInterface = queryInterface;
@@ -39,7 +39,7 @@ public class ContactResult extends Result {
 
     @Override
     public View display(Context context, int position, View v) {
-        if (v == null)
+        if(v == null)
             v = inflateFromId(context, R.layout.item_contact);
 
         // Contact name
@@ -52,18 +52,18 @@ public class ContactResult extends Result {
 
         // Contact photo
         ImprovedQuickContactBadge contactIcon = (ImprovedQuickContactBadge) v
-                .findViewById(R.id.item_contact_icon);
+              .findViewById(R.id.item_contact_icon);
         contactIcon.setImageDrawable(getDrawable(context));
 
         contactIcon.assignContactUri(Uri.withAppendedPath(
-                ContactsContract.Contacts.CONTENT_LOOKUP_URI,
-                String.valueOf(contactPojo.lookupKey)));
+              ContactsContract.Contacts.CONTENT_LOOKUP_URI,
+              String.valueOf(contactPojo.lookupKey)));
         contactIcon.setExtraOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 recordLaunch(v.getContext());
-                queryInterface.launchOccurred(-1, ContactResult.this);
+                queryInterface.launchOccurred(-1, ContactsResult.this);
             }
         });
 
@@ -74,7 +74,7 @@ public class ContactResult extends Result {
 
         PackageManager pm = context.getPackageManager();
 
-        if (pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY)) {
+        if(pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY)) {
             phoneButton.setVisibility(View.VISIBLE);
             messageButton.setVisibility(View.VISIBLE);
             phoneButton.setOnClickListener(new OnClickListener() {
@@ -92,7 +92,7 @@ public class ContactResult extends Result {
                 }
             });
 
-            if (contactPojo.homeNumber)
+            if(contactPojo.homeNumber)
                 messageButton.setVisibility(View.INVISIBLE);
             else
                 messageButton.setVisibility(View.VISIBLE);
@@ -108,15 +108,12 @@ public class ContactResult extends Result {
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     protected PopupMenu buildPopupMenu(Context context, final RecordAdapter parent, View parentView) {
-        PopupMenu menu = new PopupMenu(context, parentView);
-        menu.getMenuInflater().inflate(R.menu.menu_item_contact, menu.getMenu());
-
-        return menu;
+        return inflatePopupMenu(R.menu.menu_item_contact, context, parentView);
     }
 
     @Override
     protected Boolean popupMenuClickHandler(Context context, RecordAdapter parent, MenuItem item) {
-        switch (item.getItemId()) {
+        switch(item.getItemId()) {
             case R.id.item_contact_copy_phone:
                 copyPhone(context, contactPojo);
                 return true;
@@ -126,17 +123,17 @@ public class ContactResult extends Result {
     }
 
     @SuppressWarnings("deprecation")
-    private void copyPhone(Context context, ContactPojo contactPojo) {
-        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
+    private void copyPhone(Context context, ContactsPojo contactPojo) {
+        if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
             android.text.ClipboardManager clipboard =
-                    (android.text.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                  (android.text.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
             clipboard.setText(contactPojo.phone);
         } else {
             android.content.ClipboardManager clipboard =
-                    (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                  (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
             android.content.ClipData clip = android.content.ClipData.newPlainText(
-                    "Phone number for " + contactPojo.displayName,
-                    contactPojo.phone);
+                  "Phone number for " + contactPojo.displayName,
+                  contactPojo.phone);
             clipboard.setPrimaryClip(clip);
         }
     }
@@ -144,17 +141,17 @@ public class ContactResult extends Result {
     @SuppressWarnings("deprecation")
     @Override
     public Drawable getDrawable(Context context) {
-        if (contactPojo.icon != null) {
+        if(contactPojo.icon != null) {
             InputStream inputStream = null;
             try {
                 inputStream = context.getContentResolver().openInputStream(contactPojo.icon);
                 return Drawable.createFromStream(inputStream, null);
-            } catch (FileNotFoundException ignored) {
+            } catch(FileNotFoundException ignored) {
             } finally {
-                if (inputStream != null) {
+                if(inputStream != null) {
                     try {
                         inputStream.close();
-                    } catch (IOException ignored) {
+                    } catch(IOException ignored) {
                     }
                 }
             }
@@ -169,15 +166,10 @@ public class ContactResult extends Result {
         Intent viewContact = new Intent(Intent.ACTION_VIEW);
 
         viewContact.setData(Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_LOOKUP_URI,
-                String.valueOf(contactPojo.lookupKey)));
+              String.valueOf(contactPojo.lookupKey)));
         viewContact.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         viewContact.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
         context.startActivity(viewContact);
-    }
-
-    @Override
-    public void fastLaunch(Context context) {
-        launchMessaging(context);
     }
 
     private void launchMessaging(final Context context) {
@@ -191,7 +183,7 @@ public class ContactResult extends Result {
             @Override
             public void run() {
                 recordLaunch(context);
-                queryInterface.launchOccurred(-1, ContactResult.this);
+                queryInterface.launchOccurred(-1, ContactsResult.this);
             }
         }, KissApplication.TOUCH_DELAY);
 
@@ -208,10 +200,9 @@ public class ContactResult extends Result {
             @Override
             public void run() {
                 recordLaunch(context);
-                queryInterface.launchOccurred(-1, ContactResult.this);
+                queryInterface.launchOccurred(-1, ContactsResult.this);
             }
         }, KissApplication.TOUCH_DELAY);
 
     }
-
 }

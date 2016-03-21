@@ -18,9 +18,9 @@ public class CameraHandler {
     private Boolean torchAvailable = null;
 
     private void openCamera() throws IOException {
-        if (camera == null) {
+        if(camera == null) {
             camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK);
-            if (surfaceTexture == null && android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            if(surfaceTexture == null && android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                 surfaceTexture = new SurfaceTexture(0);
                 camera.setPreviewTexture(surfaceTexture);
             }
@@ -30,14 +30,14 @@ public class CameraHandler {
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     public void releaseCamera() {
         try {
-            if (camera != null) {
+            if(camera != null) {
                 camera.release();
-                if (surfaceTexture != null) {
+                if(surfaceTexture != null) {
                     // Call only available for ICS+, but we've already made the check on openCamera
                     surfaceTexture.release();
                 }
             }
-        } catch (Exception ex) {
+        } catch(Exception ex) {
             Log.e(TAG, "unable to release camera " + ex);
         } finally {
             camera = null;
@@ -49,12 +49,12 @@ public class CameraHandler {
     public Boolean getTorchState() {
 
         try {
-            if (torchState == null) {
+            if(torchState == null) {
                 openCamera();
                 Parameters parms = camera.getParameters();
                 torchState = parms.getFlashMode().equals(Parameters.FLASH_MODE_TORCH);
             }
-        } catch (Exception ex) {
+        } catch(Exception ex) {
             Log.e(TAG, "unable to get torch state " + ex);
             releaseCamera();
             torchState = false;
@@ -67,20 +67,20 @@ public class CameraHandler {
         try {
             openCamera();
             Parameters parms = camera.getParameters();
-            if (state)
+            if(state)
                 parms.setFlashMode(Parameters.FLASH_MODE_TORCH);
             else
                 parms.setFlashMode(Parameters.FLASH_MODE_OFF);
 
             camera.setParameters(parms);
-            if (state) {//enable torch but retain camera
+            if(state) {//enable torch but retain camera
                 camera.startPreview();
             } else { //disable torch and release camera
                 camera.stopPreview();
                 releaseCamera();
             }
             torchState = state;
-        } catch (Exception ex) {
+        } catch(Exception ex) {
             releaseCamera();
             torchState = false;
         }
@@ -88,22 +88,22 @@ public class CameraHandler {
 
     public boolean isTorchAvailable() {
         try {
-            if (torchAvailable == null) {
+            if(torchAvailable == null) {
                 torchAvailable = false;
                 openCamera();
                 List<String> torchModes = camera.getParameters().getSupportedFlashModes();
                 releaseCamera();
 
                 //no flash
-                if (torchModes == null)
+                if(torchModes == null)
                     return false;
 
-                for (String mode : torchModes) {
-                    if (mode.equalsIgnoreCase(Camera.Parameters.FLASH_MODE_TORCH))
+                for(String mode : torchModes) {
+                    if(mode.equalsIgnoreCase(Camera.Parameters.FLASH_MODE_TORCH))
                         torchAvailable = true;
                 }
             }
-        } catch (Exception ex) {
+        } catch(Exception ex) {
             torchAvailable = false;
         }
 

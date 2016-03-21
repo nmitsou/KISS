@@ -23,8 +23,8 @@ public abstract class Searcher extends AsyncTask<Void, Void, List<Pojo>> {
         super.onPostExecute(pojos);
         activity.adapter.clear();
 
-        if (pojos != null) {
-            for (int i = pojos.size() - 1; i >= 0; i--) {
+        if(pojos != null) {
+            for(int i = pojos.size() - 1; i >= 0; i--) {
                 activity.adapter.add(Result.fromPojo(activity, pojos.get(i)));
             }
         }
