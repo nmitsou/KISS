@@ -571,7 +571,7 @@ public class MainActivity extends ListActivity implements QueryInterface {
             case R.id.preferences:
                 startActivity(new Intent(this, SettingsActivity.class));
                 return true;
-            case R.id.addWidget:
+            case R.id.add_widget:
                 pickWidget();
                 return true;
             case R.id.remove_widget:
