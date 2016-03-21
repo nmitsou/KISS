@@ -458,7 +458,7 @@ public class MainActivity extends ListActivity implements QueryInterface {
         ViewGroup widgetGroup = (ViewGroup) findViewById(R.id.widgets);
         widgetGroup.removeView(hostView);
 
-        if(widgetGroup.getChildCount() == 0) {
+        if(widgetGroup.getChildCount() == 0 && prefs.getString("mini-ui", "history").equals("history")) {
             findViewById(R.id.intro).setVisibility(View.VISIBLE);
         }
     }
