@@ -24,6 +24,7 @@ import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
@@ -348,6 +349,7 @@ public class MainActivity extends ListActivity implements QueryInterface {
         for(int i=0; i<widgetsCount; ++i) {
             AppWidgetHostView widgetView = (AppWidgetHostView) widgets.getChildAt(i);
             ids[i] = widgetView.getAppWidgetId();
+            Log.d("KISS", "saving widget: " + ids[i]);
         }
         outState.putIntArray(KEY_WIDGET_IDS, ids);
     }
@@ -434,12 +436,23 @@ public class MainActivity extends ListActivity implements QueryInterface {
      * Create the widget
      */
     private void createWidget(int id) {
+        Log.d("KISS", "creating widget: " + id);
         AppWidgetProviderInfo appWidgetInfo = appWidgetManager.getAppWidgetInfo(id);
         AppWidgetHostView hostView = appWidgetHost.createView(this, id, appWidgetInfo);
+
+        ViewGroup widgets = (ViewGroup) findViewById(R.id.widgets);
         hostView.setAppWidget(id, appWidgetInfo);
-        registerForContextMenu(hostView);
+        Log.d("KISS", "Widget holder height: " + widgets.getHeight());
+        hostView.setMinimumHeight(widgets.getHeight());
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            Log.d("KISS", "Widget minimum height:" + hostView.getMinimumHeight());
+        }
+//TODO: long clicks are ignored by AppWidgetHostView
+//        registerForContextMenu(hostView);
         findViewById(R.id.intro).setVisibility(View.GONE);
-        ((ViewGroup) findViewById(R.id.widgets)).addView(hostView);
+        widgets.addView(hostView);
+
+        Log.d("KISS", "Widget height:" + hostView.getHeight());
     }
 
 	/**
@@ -449,6 +462,7 @@ public class MainActivity extends ListActivity implements QueryInterface {
         appWidgetHost.deleteAppWidgetId(hostView.getAppWidgetId());
         ViewGroup widgetGroup = (ViewGroup) findViewById(R.id.widgets);
         widgetGroup.removeView(hostView);
+
         if(widgetGroup.getChildCount() == 0) {
             findViewById(R.id.intro).setVisibility(View.VISIBLE);
         }

@@ -50,7 +50,7 @@ public class DBHelper {
 
     public static void removeFromHistory(Context context, String record) {
         SQLiteDatabase db = getDatabase(context);
-        db.delete("history", "record = ?", new String[]{record});
+        db.delete("history", "record = ?", new String[] {record});
         db.close();
     }
 
@@ -69,8 +69,8 @@ public class DBHelper {
         // Cursor query (boolean distinct, String table, String[] columns,
         // String selection, String[] selectionArgs, String groupBy, String
         // having, String orderBy, String limit)
-        Cursor cursor = db.query(true, "history", new String[]{"record", "1"}, null, null,
-                null, null, "_id DESC", Integer.toString(limit));
+        Cursor cursor = db.query(true, "history", new String[] {"record", "1"}, null, null,
+              null, null, "_id DESC", Integer.toString(limit));
 
         records = readCursor(cursor);
         cursor.close();
@@ -116,8 +116,8 @@ public class DBHelper {
         // Cursor query (String table, String[] columns, String selection,
         // String[] selectionArgs, String groupBy, String having, String
         // orderBy)
-        Cursor cursor = db.query("history", new String[]{"record", "COUNT(*) AS count"},
-                "query LIKE ?", new String[]{query + "%"}, "record", null, "COUNT(*) DESC", "10");
+        Cursor cursor = db.query("history", new String[] {"record", "COUNT(*) AS count"},
+              "query LIKE ?", new String[] {query + "%"}, "record", null, "COUNT(*) DESC", "10");
         records = readCursor(cursor);
         cursor.close();
         db.close();
@@ -146,7 +146,7 @@ public class DBHelper {
         db.close();
         return records;
     }
-    
+
     public static void insertShortcut(Context context, ShortcutRecord shortcut) {
         SQLiteDatabase db = getDatabase(context);
 
@@ -156,18 +156,18 @@ public class DBHelper {
         values.put("icon", shortcut.iconResource);
         values.put("intent_uri", shortcut.intentUri);
         values.put("icon_blob", shortcut.icon_blob);
-        
+
         db.insert("shortcuts", null, values);
         db.close();
     }
-    
+
     public static void removeShortcut(Context context, String name) {
         SQLiteDatabase db = getDatabase(context);
-        db.delete("shortcuts", "name = ?", new String[]{name});
+        db.delete("shortcuts", "name = ?", new String[] {name});
         db.close();
     }
 
-    
+
     public static ArrayList<ShortcutRecord> getShortcuts(Context context) {
         ArrayList<ShortcutRecord> records = new ArrayList<>();
         SQLiteDatabase db = getDatabase(context);
@@ -192,9 +192,40 @@ public class DBHelper {
             cursor.moveToNext();
         }
         cursor.close();
-        
+
         db.close();
         return records;
     }
-    
+
+    public static void insertWidget(Context context, int widgetId) {
+        SQLiteDatabase db = getDatabase(context);
+        ContentValues values = new ContentValues();
+        values.put("_id", widgetId);
+        db.insert("widgets", null, values);
+        db.close();
+    }
+
+    public static void removeWidget(Context context, int widgetId) {
+        SQLiteDatabase db = getDatabase(context);
+        db.delete("widgets", "_id = ?", new String[] {Integer.toString(widgetId)});
+        db.close();
+    }
+
+    public static ArrayList<Integer> getWidgets(Context context) {
+        ArrayList<Integer> widgets = new ArrayList<>();
+        SQLiteDatabase db = getDatabase(context);
+        // Cursor query (String table, String[] columns, String selection,
+        // String[] selectionArgs, String groupBy, String having, String
+        // orderBy)
+        Cursor cursor = db.query("widgets", new String[] {"_id"},
+              null, null, null, null, null);
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            widgets.add(cursor.getInt(0));
+            cursor.moveToNext();
+        }
+        cursor.close();
+        db.close();
+        return widgets;
+    }
 }
