@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string-array name="themesEntries">
-        <item>Tema claro (predeterminado)</item>
-        <item>Tema semi-transparente</item>
-        <item>Tema transparente</item>
-        <item>Tema oscuro</item>
-        <item>Tema semi-transparente oscuro</item>
-        <item>Tema transparente oscuro</item>
+        <item>Tema deschisa (implicit)</item>
+        <item>Tema semi-transparenta</item>
+        <item>Tema transparenta</item>
+        <item>Tema intunecata</item>
+        <item>Tema intunecata semi-transparenta</item>
+        <item>Tema intunecata transparenta</item>
     </string-array>
     <string-array name="themesValues">
         <item>light</item>
@@ -17,8 +17,8 @@
         <item>transparent-dark</item>
     </string-array>
     <string-array name="sortAppListEntries">
-        <item>De la A a la Z</item>
-        <item>De la Z a la A</item>
+        <item>De la A la Z</item>
+        <item>De la Z la A</item>
     </string-array>
     <string-array name="sortAppListValues">
         <item>alphabetical</item>

@@ -39,21 +39,21 @@ public abstract class Result {
     Pojo pojo = null;
 
     public static Result fromPojo(QueryInterface parent, Pojo pojo) {
-        if(pojo instanceof AppPojo)
+        if(pojo instanceof AppPojo) {
             return new AppResult((AppPojo) pojo);
-        else if(pojo instanceof ContactsPojo)
+        } else if(pojo instanceof ContactsPojo) {
             return new ContactsResult(parent, (ContactsPojo) pojo);
-        else if(pojo instanceof SearchPojo)
+        } else if(pojo instanceof SearchPojo) {
             return new SearchResult((SearchPojo) pojo);
-        else if(pojo instanceof SettingsPojo)
+        } else if(pojo instanceof SettingsPojo) {
             return new SettingsResult((SettingsPojo) pojo);
-        else if(pojo instanceof TogglesPojo)
+        } else if(pojo instanceof TogglesPojo) {
             return new TogglesResult((TogglesPojo) pojo);
-        else if(pojo instanceof PhonePojo)
+        } else if(pojo instanceof PhonePojo) {
             return new PhoneResult((PhonePojo) pojo);
-        else if(pojo instanceof ShortcutsPojo)
+        } else if(pojo instanceof ShortcutsPojo) {
             return new ShortcutsResult((ShortcutsPojo) pojo);
-
+        }
 
         throw new RuntimeException("Unable to create a result from POJO");
     }
@@ -102,7 +102,7 @@ public abstract class Result {
 
         // If app already pinned, do not display the "add to favorite" option
         String favApps = PreferenceManager.getDefaultSharedPreferences(context).
-              getString("favorite-apps-list", "");
+                                                                               getString("favorite-apps-list", "");
         if(favApps.contains(this.pojo.id + ";")) {
             menu.getMenu().removeItem(R.id.item_favorites_add);
         }
@@ -190,7 +190,7 @@ public abstract class Result {
      */
     View inflateFromId(Context context, int id) {
         LayoutInflater vi = (LayoutInflater) context
-              .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                             .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         return vi.inflate(id, null);
     }
 
@@ -225,6 +225,8 @@ public abstract class Result {
     public int getThemeFillColor(Context context) {
         int[] attrs = new int[] {R.attr.resultColor /* index 0 */};
         TypedArray ta = context.obtainStyledAttributes(attrs);
-        return ta.getColor(0, Color.WHITE);
+        int color = ta.getColor(0, Color.WHITE);
+        ta.recycle();
+        return color;
     }
 }

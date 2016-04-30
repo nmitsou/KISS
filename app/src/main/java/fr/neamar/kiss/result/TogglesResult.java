@@ -13,7 +13,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import fr.neamar.kiss.MainActivity;
 import fr.neamar.kiss.R;
 import fr.neamar.kiss.pojo.TogglesPojo;
 import fr.neamar.kiss.toggles.TogglesHandler;
@@ -35,11 +34,13 @@ public class TogglesResult extends Result {
     @Override
     public View display(Context context, int position, View v) {
         // On first run, initialize handler
-        if(togglesHandler == null)
+        if(togglesHandler == null) {
             togglesHandler = new TogglesHandler(context);
+        }
 
-        if(v == null)
+        if(v == null) {
             v = inflateFromId(context, R.layout.item_toggle);
+        }
 
         String togglePrefix = "<small><small>" + context.getString(R.string.toggles_prefix) + "</small></small>";
 
@@ -52,17 +53,18 @@ public class TogglesResult extends Result {
 
         // Use the handler to check or un-check button
         final CompoundButton toggleButton = (CompoundButton) v
-              .findViewById(R.id.item_toggle_action_toggle);
+                                                             .findViewById(R.id.item_toggle_action_toggle);
 
         //set listener to null to avoid calling the listener of the older toggle item
         //(due to recycling)
         toggleButton.setOnCheckedChangeListener(null);
 
         Boolean state = togglesHandler.getState(togglePojo);
-        if(state != null)
+        if(state != null) {
             toggleButton.setChecked(togglesHandler.getState(togglePojo));
-        else
+        } else {
             toggleButton.setEnabled(false);
+        }
 
         toggleButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
@@ -93,7 +95,6 @@ public class TogglesResult extends Result {
                             super.onPostExecute(result);
                             toggleButton.setEnabled(true);
                         }
-
                     }.execute();
                 }
             }
@@ -122,16 +123,14 @@ public class TogglesResult extends Result {
             togglesHandler.setState(togglePojo, !togglesHandler.getState(togglePojo));
 
             //show toast to inform user what the state is
-            Toast.makeText(((MainActivity) context), String.format(msg, " " + this.pojo.displayName), Toast.LENGTH_SHORT).show();
-
+            Toast.makeText(context, String.format(msg, " " + this.pojo.displayName), Toast.LENGTH_SHORT).show();
         } else {
             // Use the handler to check or un-check button
             final CompoundButton toggleButton = (CompoundButton) v
-                  .findViewById(R.id.item_toggle_action_toggle);
+                                                                 .findViewById(R.id.item_toggle_action_toggle);
             if(toggleButton.isEnabled()) {
                 toggleButton.performClick();
             }
         }
     }
-
 }

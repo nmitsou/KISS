@@ -4,7 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.ListActivity;
+import android.app.Activity;
 import android.appwidget.AppWidgetHost;
 import android.appwidget.AppWidgetHostView;
 import android.appwidget.AppWidgetManager;
@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.database.DataSetObserver;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -55,14 +56,21 @@ import fr.neamar.kiss.searcher.NullSearcher;
 import fr.neamar.kiss.searcher.QueryInterface;
 import fr.neamar.kiss.searcher.QuerySearcher;
 import fr.neamar.kiss.searcher.Searcher;
+import fr.neamar.kiss.ui.BlockableListView;
+import fr.neamar.kiss.ui.BottomPullEffectView;
+import fr.neamar.kiss.ui.KeyboardScrollHider;
 
-public class MainActivity extends ListActivity implements QueryInterface {
+public class MainActivity extends Activity implements QueryInterface, KeyboardScrollHider.KeyboardHandler {
 
     public static final String START_LOAD = "fr.neamar.summon.START_LOAD";
     public static final String LOAD_OVER = "fr.neamar.summon.LOAD_OVER";
     public static final String FULL_LOAD_OVER = "fr.neamar.summon.FULL_LOAD_OVER";
     private static final String KEY_WIDGET_IDS = "fr.neamar.kiss.KEY_WIDGET_IDS";
-
+    /**
+     * InputType with spellcheck and swiping
+     */
+    private final static int SPELLCHECK_ENABLED_TYPE = InputType.TYPE_CLASS_TEXT |
+                                                       InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
     /**
      * IDS for the favorites buttons
      */
@@ -72,10 +80,6 @@ public class MainActivity extends ListActivity implements QueryInterface {
      * We need to pad this number to account for removed items still in history
      */
     private final int tryToRetrieve = favsIds.length + 2;
-    /**
-     * InputType with spellecheck and swiping
-     */
-    private final int spellcheckEnabledType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
     /**
      * Adapter to display records
      */
@@ -96,6 +100,19 @@ public class MainActivity extends ListActivity implements QueryInterface {
         }
     };
     /**
+     * Main list view
+     */
+    private ListView list;
+    private View listContainer;
+    /**
+     * View to display when list is empty
+     */
+    private View listEmpty;
+    /**
+     * Utility for automatically hiding the keyboard when scrolling down
+     */
+    private KeyboardScrollHider hider;
+    /**
      * Menu button
      */
     private View menuButton;
@@ -113,25 +130,29 @@ public class MainActivity extends ListActivity implements QueryInterface {
     /**
      * Called when the activity is first created.
      */
-    @SuppressLint("NewApi")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         // Initialize UI
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         String theme = prefs.getString("theme", "light");
-        if(theme.equals("dark")) {
-            setTheme(R.style.AppThemeDark);
-        } else if(theme.equals("transparent")) {
-            setTheme(R.style.AppThemeTransparent);
-        } else if(theme.equals("semi-transparent")) {
-            setTheme(R.style.AppThemeSemiTransparent);
-        } else if(theme.equals("semi-transparent-dark")) {
-            setTheme(R.style.AppThemeSemiTransparentDark);
-        } else if(theme.equals("transparent-dark")) {
-            setTheme(R.style.AppThemeTransparentDark);
+        switch(theme) {
+            case "dark":
+                setTheme(R.style.AppThemeDark);
+                break;
+            case "transparent":
+                setTheme(R.style.AppThemeTransparent);
+                break;
+            case "semi-transparent":
+                setTheme(R.style.AppThemeSemiTransparent);
+                break;
+            case "semi-transparent-dark":
+                setTheme(R.style.AppThemeSemiTransparentDark);
+                break;
+            case "transparent-dark":
+                setTheme(R.style.AppThemeTransparentDark);
+                break;
         }
-
 
         super.onCreate(savedInstanceState);
 
@@ -145,7 +166,6 @@ public class MainActivity extends ListActivity implements QueryInterface {
                     updateRecords(searchEditText.getText().toString());
                 } else if(intent.getAction().equalsIgnoreCase(FULL_LOAD_OVER)) {
                     displayLoader(false);
-
                 } else if(intent.getAction().equalsIgnoreCase(START_LOAD)) {
                     displayLoader(true);
                 }
@@ -173,9 +193,33 @@ public class MainActivity extends ListActivity implements QueryInterface {
 
         setContentView(R.layout.main);
 
+        this.list = (ListView) this.findViewById(android.R.id.list);
+        this.listContainer = (View) this.list.getParent();
+        this.listEmpty = this.findViewById(android.R.id.empty);
+
         // Create adapter for records
-        adapter = new RecordAdapter(this, this, R.layout.item_app, new ArrayList<Result>());
-        setListAdapter(adapter);
+        this.adapter = new RecordAdapter(this, this, R.layout.item_app, new ArrayList<Result>());
+        this.list.setAdapter(this.adapter);
+
+        this.list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                adapter.onClick(position, v);
+            }
+        });
+        this.adapter.registerDataSetObserver(new DataSetObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+
+                if(adapter.isEmpty()) {
+                    listContainer.setVisibility(View.GONE);
+                    listEmpty.setVisibility(View.VISIBLE);
+                } else {
+                    listContainer.setVisibility(View.VISIBLE);
+                    listEmpty.setVisibility(View.GONE);
+                }
+            }
+        });
 
         searchEditText = (EditText) findViewById(R.id.searchEditText);
 
@@ -183,13 +227,12 @@ public class MainActivity extends ListActivity implements QueryInterface {
         searchEditText.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {
                 // Auto left-trim text.
-                if(s.length() > 0 && s.charAt(0) == ' ')
+                if(s.length() > 0 && s.charAt(0) == ' ') {
                     s.delete(0, 1);
+                }
             }
 
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 updateRecords(s.toString());
@@ -201,7 +244,7 @@ public class MainActivity extends ListActivity implements QueryInterface {
         searchEditText.setOnEditorActionListener(new OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                RecordAdapter adapter = ((RecordAdapter) getListView().getAdapter());
+                RecordAdapter adapter = ((RecordAdapter) list.getAdapter());
                 adapter.onClick(adapter.getCount() - 1, null);
                 return true;
             }
@@ -214,7 +257,7 @@ public class MainActivity extends ListActivity implements QueryInterface {
                     //if not on the application list and not searching for something
                     if((kissBar.getVisibility() != View.VISIBLE) && (searchEditText.getText().toString().isEmpty())) {
                         //if list is empty
-                        if((MainActivity.this.getListAdapter() == null) || (MainActivity.this.getListAdapter().getCount() == 0)) {
+                        if((list.getAdapter() == null) || (list.getAdapter().getCount() == 0)) {
                             searcher = new HistorySearcher(MainActivity.this);
                             searcher.execute();
                         }
@@ -226,9 +269,8 @@ public class MainActivity extends ListActivity implements QueryInterface {
         kissBar = findViewById(R.id.main_kissbar);
         menuButton = findViewById(R.id.menuButton);
 
-        getListView().setLongClickable(true);
-        getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-
+        this.list.setLongClickable(true);
+        this.list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View v, int pos, long id) {
                 ((RecordAdapter) parent.getAdapter()).onLongClick(pos, v);
@@ -236,9 +278,15 @@ public class MainActivity extends ListActivity implements QueryInterface {
             }
         });
 
+        this.hider = new KeyboardScrollHider(this,
+                                            (BlockableListView) this.list,
+                                            (BottomPullEffectView) this.findViewById(R.id.listEdgeEffect)
+        );
+        this.hider.start();
+
         // Enable swiping
         if(prefs.getBoolean("enable-spellcheck", false)) {
-            searchEditText.setInputType(spellcheckEnabledType);
+            searchEditText.setInputType(SPELLCHECK_ENABLED_TYPE);
         }
 
         // Hide the "X" after the text field, instead displaying the menu button
@@ -257,14 +305,14 @@ public class MainActivity extends ListActivity implements QueryInterface {
      */
     private void applyDesignTweaks() {
         final int[] tweakableIds = new int[] {
-              R.id.menuButton,
-              // Barely visible on the clearbutton, since it disappears instant. Can be seen on long click though
-              R.id.clearButton,
-              R.id.launcherButton,
-              R.id.favorite0,
-              R.id.favorite1,
-              R.id.favorite2,
-              R.id.favorite3,
+        R.id.menuButton,
+        // Barely visible on the clearbutton, since it disappears instant. Can be seen on long click though
+        R.id.clearButton,
+        R.id.launcherButton,
+        R.id.favorite0,
+        R.id.favorite1,
+        R.id.favorite2,
+        R.id.favorite3,
         };
 
         if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -274,7 +322,6 @@ public class MainActivity extends ListActivity implements QueryInterface {
             for(int id : tweakableIds) {
                 findViewById(id).setBackgroundResource(outValue.resourceId);
             }
-
         } else if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             TypedValue outValue = new TypedValue();
             getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
@@ -283,12 +330,6 @@ public class MainActivity extends ListActivity implements QueryInterface {
                 findViewById(id).setBackgroundResource(outValue.resourceId);
             }
         }
-    }
-
-    @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-        adapter.onClick(position, v);
     }
 
     @Override
@@ -467,6 +508,7 @@ public class MainActivity extends ListActivity implements QueryInterface {
      * Empty text field on resume and show keyboard
      */
     @Override
+    @SuppressLint("CommitPrefEdits")
     protected void onResume() {
         if(prefs.getBoolean("require-layout-update", false)) {
             // Restart current activity to refresh view, since some preferences
@@ -474,7 +516,7 @@ public class MainActivity extends ListActivity implements QueryInterface {
             prefs.edit().putBoolean("require-layout-update", false).commit();
             Intent i = new Intent(this, getClass());
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
-                  | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                       | Intent.FLAG_ACTIVITY_NO_ANIMATION);
             finish();
             overridePendingTransition(0, 0);
             startActivity(i);
@@ -614,7 +656,6 @@ public class MainActivity extends ListActivity implements QueryInterface {
         // When the kiss bar is displayed, the button can still be clicked in a few areas (due to favorite margin)
         // To fix this, we discard any click event occurring when the kissbar is displayed
         if(kissBar.getVisibility() != View.VISIBLE) {
-//            menuButton.showContextMenu();
             openOptionsMenu();
         }
     }
@@ -641,7 +682,7 @@ public class MainActivity extends ListActivity implements QueryInterface {
         // Favorites handling
 
         Pojo pojo = KissApplication.getDataHandler(MainActivity.this).getFavorites(tryToRetrieve)
-              .get(Integer.parseInt((String) favorite.getTag()));
+                    .get(Integer.parseInt((String) favorite.getTag()));
         final Result result = Result.fromPojo(MainActivity.this, pojo);
 
         Handler handler = new Handler();
@@ -670,7 +711,7 @@ public class MainActivity extends ListActivity implements QueryInterface {
         final View launcherButton = findViewById(R.id.launcherButton);
 
         int animationDuration = getResources().getInteger(
-              android.R.integer.config_longAnimTime);
+        android.R.integer.config_longAnimTime);
 
         if(!display) {
             launcherButton.setVisibility(View.VISIBLE);
@@ -679,19 +720,19 @@ public class MainActivity extends ListActivity implements QueryInterface {
                 // Animate transition from loader to launch button
                 launcherButton.setAlpha(0);
                 launcherButton.animate()
-                      .alpha(1f)
-                      .setDuration(animationDuration)
-                      .setListener(null);
+                .alpha(1f)
+                .setDuration(animationDuration)
+                .setListener(null);
                 loaderBar.animate()
-                      .alpha(0f)
-                      .setDuration(animationDuration)
-                      .setListener(new AnimatorListenerAdapter() {
-                          @Override
-                          public void onAnimationEnd(Animator animation) {
-                              loaderBar.setVisibility(View.GONE);
-                              loaderBar.setAlpha(1);
-                          }
-                      });
+                .alpha(0f)
+                .setDuration(animationDuration)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        loaderBar.setVisibility(View.GONE);
+                        loaderBar.setAlpha(1);
+                    }
+                });
             } else {
                 loaderBar.setVisibility(View.GONE);
             }
@@ -755,7 +796,7 @@ public class MainActivity extends ListActivity implements QueryInterface {
 
     public void retrieveFavorites() {
         ArrayList<Pojo> favoritesPojo = KissApplication.getDataHandler(MainActivity.this)
-              .getFavorites(tryToRetrieve);
+                                        .getFavorites(tryToRetrieve);
 
         if(favoritesPojo.size() == 0) {
             Toast toast = Toast.makeText(MainActivity.this, getString(R.string.no_favorites), Toast.LENGTH_SHORT);
@@ -769,8 +810,9 @@ public class MainActivity extends ListActivity implements QueryInterface {
 
             Result result = Result.fromPojo(MainActivity.this, pojo);
             Drawable drawable = result.getDrawable(MainActivity.this);
-            if(drawable != null)
+            if(drawable != null) {
                 image.setImageDrawable(drawable);
+            }
             image.setVisibility(View.VISIBLE);
             image.setContentDescription(pojo.displayName);
         }
@@ -797,7 +839,6 @@ public class MainActivity extends ListActivity implements QueryInterface {
                 searcher = new NullSearcher(this);
                 //Hide default scrollview
                 findViewById(R.id.intro).setVisibility(View.GONE);
-
             } else {
                 searcher = new HistorySearcher(this);
                 //Show default scrollview
@@ -826,19 +867,21 @@ public class MainActivity extends ListActivity implements QueryInterface {
         }
     }
 
-    private void hideKeyboard() {
+    @Override
+    public void showKeyboard() {
+        searchEditText.requestFocus();
+        InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        mgr.showSoftInput(searchEditText, InputMethodManager.SHOW_IMPLICIT);
+    }
+
+    @Override
+    public void hideKeyboard() {
         // Check if no view has focus:
         View view = this.getCurrentFocus();
         if(view != null) {
             InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
             inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
-    }
-
-    private void showKeyboard() {
-        searchEditText.requestFocus();
-        InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        mgr.showSoftInput(searchEditText, InputMethodManager.SHOW_IMPLICIT);
     }
 
     public int getFavIconsSize() {

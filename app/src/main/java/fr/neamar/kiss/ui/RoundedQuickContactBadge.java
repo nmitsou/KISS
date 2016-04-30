@@ -49,11 +49,9 @@ public class RoundedQuickContactBadge extends QuickContactBadge {
 
             //Using null to not draw anything at all
             field.set(this, null);
-
         } catch(Exception e) {
             //No-op, just well off with the default overlay
         }
-
     }
 
     @Override
@@ -64,7 +62,6 @@ public class RoundedQuickContactBadge extends QuickContactBadge {
          * Create a new clip path. Anything outside this path will be clipped from this view and not drawn by onDraw method
 		 */
         clipPath = new Path();
-
 
         //Adding a circle. The circle will be positioned in the center using x = w/2 and y = w/2
         //Circle will be limiting it's radius to the smaller one of height or width.

@@ -53,5 +53,4 @@ public class ImprovedQuickContactBadge extends RoundedQuickContactBadge {
     public void setExtraOnClickListener(View.OnClickListener extraOnClickListener) {
         mExtraOnClickListener = extraOnClickListener;
     }
-
 }

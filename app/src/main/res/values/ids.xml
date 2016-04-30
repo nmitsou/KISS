@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item name="appWidgetHostId" type="id" />
+    <item name="appWidgetHostId" type="id"/>
     <item name="requestPickAppWidget" type="id"/>
     <item name="requestCreateAppWidget" type="id"/>
 </resources>

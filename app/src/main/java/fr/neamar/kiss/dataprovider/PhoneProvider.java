@@ -32,7 +32,6 @@ public class PhoneProvider extends Provider<PhonePojo> {
         return pojos;
     }
 
-
     public Pojo findById(String id) {
         return getResult(id.replaceFirst(Pattern.quote(PHONE_SCHEME), ""));
     }

@@ -27,12 +27,13 @@ public class SearchResult extends Result {
 
     @Override
     public View display(Context context, int position, View v) {
-        if(v == null)
+        if(v == null) {
             v = inflateFromId(context, R.layout.item_search);
+        }
 
         TextView appName = (TextView) v.findViewById(R.id.item_search_text);
-        String text = this.pojo.name + " " + context.getString(R.string.ui_item_search);
-        appName.setText(enrichText(String.format(text, "{" + searchPojo.query + "}")));
+        String text = context.getString(R.string.ui_item_search);
+        appName.setText(enrichText(String.format(text, this.pojo.name, "{" + searchPojo.query + "}")));
 
         ((ImageView) v.findViewById(R.id.item_search_icon)).setColorFilter(getThemeFillColor(context), PorterDuff.Mode.SRC_IN);
         return v;
@@ -71,8 +72,7 @@ public class SearchResult extends Result {
     @Override
     protected PopupMenu buildPopupMenu(Context context, final RecordAdapter parent, View parentView) {
 
-        //empty menu so that you don't add on favorites
-        PopupMenu menu = new PopupMenu(context, parentView);
-        return menu;
+        // Empty menu so that you don't add on favorites
+        return new PopupMenu(context, parentView);
     }
 }

@@ -32,14 +32,13 @@ public class AliasProvider extends Provider<AliasPojo> {
         public void onServiceDisconnected(ComponentName arg0) {}
     };
 
-
     @Override
     public void onCreate() {
         // Connect to the required application provider
         this.bindService(
-              new Intent(this, AppProvider.class),
-              this.appConnection,
-              Context.BIND_AUTO_CREATE
+        new Intent(this, AppProvider.class),
+        this.appConnection,
+        Context.BIND_AUTO_CREATE
         );
 
         super.onCreate();
@@ -71,10 +70,10 @@ public class AliasProvider extends Provider<AliasPojo> {
                 // Only add if default AppProvider is not already displaying it
                 if(appPojo != null && !appPojo.nameNormalized.contains(query)) {
                     appPojo.displayName = appPojo.name
-                          + " <small>("
-                          + entry.alias.replaceFirst(
-                          "(?i)(" + Pattern.quote(query) + ")", "{$1}")
-                          + ")</small>";
+                                          + " <small>("
+                                          + entry.alias.replaceFirst(
+                    "(?i)(" + Pattern.quote(query) + ")", "{$1}")
+                                          + ")</small>";
                     appPojo.relevance = 10;
                     results.add(appPojo);
                 }

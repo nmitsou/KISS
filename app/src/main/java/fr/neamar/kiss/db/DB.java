@@ -18,7 +18,7 @@ public class DB extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase database) {
         database.execSQL("CREATE TABLE history ( _id INTEGER PRIMARY KEY AUTOINCREMENT, query TEXT, record TEXT NOT NULL)");
         database.execSQL("CREATE TABLE shortcuts ( _id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, package TEXT,"
-              + "icon TEXT, intent_uri TEXT NOT NULL, icon_blob BLOB)");
+                         + "icon TEXT, intent_uri TEXT NOT NULL, icon_blob BLOB)");
         database.execSQL("CREATE TABLE widgets ( _id INTEGER PRIMARY KEY AUTOINCREMENT)");
     }
 
@@ -33,7 +33,7 @@ public class DB extends SQLiteOpenHelper {
                 case 2:
                 case 3:
                     database.execSQL("CREATE TABLE shortcuts ( _id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, package TEXT,"
-                          + "icon TEXT, intent_uri TEXT NOT NULL, icon_blob BLOB)");
+                                     + "icon TEXT, intent_uri TEXT NOT NULL, icon_blob BLOB)");
                 case 4:
                     database.execSQL("CREATE TABLE widgets ( _id INTEGER PRIMARY KEY AUTOINCREMENT)");
                 default:

@@ -29,7 +29,7 @@ public class TogglesHandler {
      */
     public TogglesHandler(Context context) {
         this.connectivityManager = (ConnectivityManager) context
-              .getSystemService(Context.CONNECTIVITY_SERVICE);
+                                                         .getSystemService(Context.CONNECTIVITY_SERVICE);
         this.wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         this.bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         this.audioManager = ((AudioManager) context.getSystemService(Context.AUDIO_SERVICE));
@@ -126,7 +126,7 @@ public class TogglesHandler {
         Method dataMtd;
         try {
             dataMtd = ConnectivityManager.class.getDeclaredMethod("setMobileDataEnabled",
-                  boolean.class);
+            boolean.class);
             dataMtd.setAccessible(true);
             dataMtd.invoke(connectivityManager, state);
         } catch(NoSuchMethodException | InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
@@ -139,10 +139,11 @@ public class TogglesHandler {
     }
 
     private void setBluetoothState(Boolean state) {
-        if(state)
+        if(state) {
             bluetoothAdapter.enable();
-        else
+        } else {
             bluetoothAdapter.disable();
+        }
     }
 
     private Boolean getTorchState() {
@@ -155,7 +156,6 @@ public class TogglesHandler {
         }
     }
 
-
     private Boolean getSilentState() {
         int state = audioManager.getRingerMode();
         return state == AudioManager.RINGER_MODE_SILENT || state == AudioManager.RINGER_MODE_VIBRATE;
@@ -165,8 +165,8 @@ public class TogglesHandler {
         if(!state) {
             audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
             audioManager.setStreamVolume(AudioManager.STREAM_RING,
-                  audioManager.getStreamVolume(AudioManager.STREAM_RING),
-                  AudioManager.FLAG_PLAY_SOUND);
+            audioManager.getStreamVolume(AudioManager.STREAM_RING),
+            AudioManager.FLAG_PLAY_SOUND);
         } else {
             audioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
             audioManager.setStreamVolume(AudioManager.STREAM_RING, 0, AudioManager.FLAG_VIBRATE);

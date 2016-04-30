@@ -28,8 +28,9 @@ public class PhoneResult extends Result {
 
     @Override
     public View display(Context context, int position, View v) {
-        if(v == null)
+        if(v == null) {
             v = inflateFromId(context, R.layout.item_phone);
+        }
 
         TextView appName = (TextView) v.findViewById(R.id.item_phone_text);
         String text = context.getString(R.string.ui_item_phone);
@@ -80,6 +81,7 @@ public class PhoneResult extends Result {
 
     @Override
     public Drawable getDrawable(Context context) {
+        //noinspection deprecation: getDrawable(int, Theme) requires SDK 21+
         return context.getResources().getDrawable(android.R.drawable.ic_menu_call);
     }
 }

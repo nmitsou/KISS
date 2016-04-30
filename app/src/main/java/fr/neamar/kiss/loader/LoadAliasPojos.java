@@ -71,10 +71,9 @@ public class LoadAliasPojos extends LoadPojos<AliasPojo> {
         }
 
         return alias;
-
     }
 
-    private void addAliasesPojo(ArrayList<AliasPojo> alias, String[] aliases, String appInfo) {
+    private void addAliasesPojo(List<AliasPojo> alias, String[] aliases, String appInfo) {
         for(String a : aliases) {
             alias.add(makeAliasPojo(a, appInfo));
         }
@@ -105,7 +104,7 @@ public class LoadAliasPojos extends LoadPojos<AliasPojo> {
             return null;
         } else {
             return "app://" + list.get(0).activityInfo.applicationInfo.packageName + "/"
-                  + list.get(0).activityInfo.name;
+                   + list.get(0).activityInfo.name;
         }
     }
 
@@ -115,24 +114,24 @@ public class LoadAliasPojos extends LoadPojos<AliasPojo> {
         // Known clock implementations
         // See http://stackoverflow.com/questions/3590955/intent-to-launch-the-clock-application-on-android
         String clockImpls[][] = {
-              // Nexus
-              {"com.android.deskclock", "com.android.deskclock.DeskClock"},
-              // Samsung
-              {"com.sec.android.app.clockpackage", "com.sec.android.app.clockpackage.ClockPackage"},
-              // HTC
-              {"com.htc.android.worldclock", "com.htc.android.worldclock.WorldClockTabControl"},
-              // Standard Android
-              {"com.android.deskclock", "com.android.deskclock.AlarmClock"},
-              // New Android versions
-              {"com.google.android.deskclock", "com.android.deskclock.AlarmClock"},
-              // Froyo
-              {"com.google.android.deskclock", "com.android.deskclock.DeskClock"},
-              // Motorola
-              {"com.motorola.blur.alarmclock", "com.motorola.blur.alarmclock.AlarmClock"},
-              // Sony
-              {"com.sonyericsson.organizer", "com.sonyericsson.organizer.Organizer_WorldClock"},
-              // ASUS Tablets
-              {"com.asus.deskclock", "com.asus.deskclock.DeskClock"}
+        // Nexus
+        {"com.android.deskclock", "com.android.deskclock.DeskClock"},
+        // Samsung
+        {"com.sec.android.app.clockpackage", "com.sec.android.app.clockpackage.ClockPackage"},
+        // HTC
+        {"com.htc.android.worldclock", "com.htc.android.worldclock.WorldClockTabControl"},
+        // Standard Android
+        {"com.android.deskclock", "com.android.deskclock.AlarmClock"},
+        // New Android versions
+        {"com.google.android.deskclock", "com.android.deskclock.AlarmClock"},
+        // Froyo
+        {"com.google.android.deskclock", "com.android.deskclock.DeskClock"},
+        // Motorola
+        {"com.motorola.blur.alarmclock", "com.motorola.blur.alarmclock.AlarmClock"},
+        // Sony
+        {"com.sonyericsson.organizer", "com.sonyericsson.organizer.Organizer_WorldClock"},
+        // ASUS Tablets
+        {"com.asus.deskclock", "com.asus.deskclock.DeskClock"}
         };
 
         for(String[] clockImpl : clockImpls) {

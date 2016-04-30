@@ -7,21 +7,27 @@ import android.content.DialogInterface.OnClickListener;
 import android.preference.CheckBoxPreference;
 import android.util.AttributeSet;
 
-import fr.neamar.kiss.KissApplication;
 import fr.neamar.kiss.R;
 
-public class RootModePreference extends CheckBoxPreference {
+public class FreezeHistoryPreference extends CheckBoxPreference {
 
-    public RootModePreference(Context context, AttributeSet attrs) {
+    public FreezeHistoryPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
     @Override
     protected void onClick() {
-        if(!isChecked() && !KissApplication.getRootHandler(getContext()).isRootAvailable()) {
-            //show error dialog
-            new AlertDialog.Builder(getContext()).setMessage(R.string.root_mode_error)
+        if(!isChecked()) {
+            //show dialog
+            new AlertDialog.Builder(getContext()).setMessage(R.string.freeze_history_warn)
             .setPositiveButton(android.R.string.ok, new OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    FreezeHistoryPreference.super.onClick();
+                }
+            })
+            .setNegativeButton(android.R.string.cancel, new OnClickListener() {
 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -30,12 +36,6 @@ public class RootModePreference extends CheckBoxPreference {
             }).show();
         } else {
             super.onClick();
-        }
-
-        try {
-            KissApplication.resetRootHandler(getContext());
-        } catch(NullPointerException e) {
-            // uninitialized roothandler.
         }
     }
 }

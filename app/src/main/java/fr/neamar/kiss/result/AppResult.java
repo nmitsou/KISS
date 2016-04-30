@@ -41,12 +41,12 @@ public class AppResult extends Result {
 
     @Override
     public View display(final Context context, int position, View v) {
-        if(v == null)
+        if(v == null) {
             v = inflateFromId(context, R.layout.item_app);
+        }
 
         TextView appName = (TextView) v.findViewById(R.id.item_app_name);
         appName.setText(enrichText(appPojo.displayName));
-
 
         final ImageView appIcon = (ImageView) v.findViewById(R.id.item_app_icon);
 
@@ -121,14 +121,13 @@ public class AppResult extends Result {
 
     private void excludeFromAppList(Context context, AppPojo appPojo) {
         String excludedAppList = PreferenceManager.getDefaultSharedPreferences(context).
-              getString("excluded-apps-list", context.getPackageName() + ";");
+                                                                                       getString("excluded-apps-list", context.getPackageName() + ";");
         PreferenceManager.getDefaultSharedPreferences(context).edit()
-              .putString("excluded-apps-list", excludedAppList + appPojo.packageName + ";").commit();
+        .putString("excluded-apps-list", excludedAppList + appPojo.packageName + ";").commit();
         //remove app pojo from appProvider results - no need to reset handler
         KissApplication.getDataHandler(context).getAppProvider().removeApp(appPojo);
         KissApplication.getDataHandler(context).removeFromFavorites(appPojo, context);
         Toast.makeText(context, R.string.excluded_app_list_added, Toast.LENGTH_LONG).show();
-
     }
 
     /**
@@ -136,7 +135,7 @@ public class AppResult extends Result {
      */
     private void launchAppDetails(Context context, AppPojo app) {
         Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-              Uri.fromParts("package", app.packageName, null));
+                                  Uri.fromParts("package", app.packageName, null));
         context.startActivity(intent);
     }
 
@@ -154,7 +153,7 @@ public class AppResult extends Result {
      */
     private void launchUninstall(Context context, AppPojo app) {
         Intent intent = new Intent(Intent.ACTION_DELETE,
-              Uri.fromParts("package", app.packageName, null));
+                                  Uri.fromParts("package", app.packageName, null));
         context.startActivity(intent);
     }
 
@@ -166,7 +165,6 @@ public class AppResult extends Result {
         }
 
         return icon;
-
     }
 
     @Override

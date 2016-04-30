@@ -52,32 +52,36 @@ public class AppProvider extends Provider<AppPojo> {
 
                     // If we are at the beginning of a word, add it to matchedWordStarts
                     if(appPos == 0 || normalizedAppPos == 0
-                          || Character.isUpperCase(pojo.name.codePointAt(appPos))
-                          || Character.isWhitespace(pojo.name.codePointBefore(appPos)))
+                       || Character.isUpperCase(pojo.name.codePointAt(appPos))
+                       || Character.isWhitespace(pojo.name.codePointBefore(appPos))) {
                         matchedWordStarts += 1;
+                    }
 
                     // Increment the position in the query
                     queryPos += Character.charCount(query.codePointAt(queryPos));
                 } else if(match) {
-                    if(matchPositions == null)
+                    if(matchPositions == null) {
                         matchPositions = new ArrayList<>();
+                    }
                     matchPositions.add(Pair.create(beginMatch, normalizedAppPos));
                     match = false;
                 }
 
                 // If we are at the beginning of a word, add it to totalWordsStarts
                 if(appPos == 0 || normalizedAppPos == 0
-                      || Character.isUpperCase(pojo.name.codePointAt(appPos))
-                      || Character.isWhitespace(pojo.name.codePointBefore(appPos)))
+                   || Character.isUpperCase(pojo.name.codePointAt(appPos))
+                   || Character.isWhitespace(pojo.name.codePointBefore(appPos))) {
                     totalWordStarts += 1;
+                }
 
                 normalizedAppPos += Character.charCount(cApp);
                 appPos = pojo.mapPosition(normalizedAppPos);
             }
 
             if(match) {
-                if(matchPositions == null)
+                if(matchPositions == null) {
                     matchPositions = new ArrayList<>();
+                }
                 matchPositions.add(Pair.create(beginMatch, normalizedAppPos));
             }
 
@@ -118,7 +122,6 @@ public class AppProvider extends Provider<AppPojo> {
                 }
                 return pojo;
             }
-
         }
 
         return null;
@@ -130,8 +133,9 @@ public class AppProvider extends Provider<AppPojo> {
 
     public Pojo findByName(String name) {
         for(Pojo pojo : pojos) {
-            if(pojo.name.equals(name))
+            if(pojo.name.equals(name)) {
                 return pojo;
+            }
         }
         return null;
     }

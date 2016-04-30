@@ -10,5 +10,4 @@ public class ShortcutsPojo extends Pojo {
     public String resourceName;
     public String intentUri;
     public Bitmap icon;
-
 }

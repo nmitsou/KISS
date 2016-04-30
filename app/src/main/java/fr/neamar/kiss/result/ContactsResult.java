@@ -39,8 +39,9 @@ public class ContactsResult extends Result {
 
     @Override
     public View display(Context context, int position, View v) {
-        if(v == null)
+        if(v == null) {
             v = inflateFromId(context, R.layout.item_contact);
+        }
 
         // Contact name
         TextView contactName = (TextView) v.findViewById(R.id.item_contact_name);
@@ -52,12 +53,12 @@ public class ContactsResult extends Result {
 
         // Contact photo
         ImprovedQuickContactBadge contactIcon = (ImprovedQuickContactBadge) v
-              .findViewById(R.id.item_contact_icon);
+                                                                            .findViewById(R.id.item_contact_icon);
         contactIcon.setImageDrawable(getDrawable(context));
 
         contactIcon.assignContactUri(Uri.withAppendedPath(
-              ContactsContract.Contacts.CONTENT_LOOKUP_URI,
-              String.valueOf(contactPojo.lookupKey)));
+        ContactsContract.Contacts.CONTENT_LOOKUP_URI,
+        String.valueOf(contactPojo.lookupKey)));
         contactIcon.setExtraOnClickListener(new OnClickListener() {
 
             @Override
@@ -92,11 +93,11 @@ public class ContactsResult extends Result {
                 }
             });
 
-            if(contactPojo.homeNumber)
+            if(contactPojo.homeNumber) {
                 messageButton.setVisibility(View.INVISIBLE);
-            else
+            } else {
                 messageButton.setVisibility(View.VISIBLE);
-
+            }
         } else {
             phoneButton.setVisibility(View.INVISIBLE);
             messageButton.setVisibility(View.INVISIBLE);
@@ -126,14 +127,14 @@ public class ContactsResult extends Result {
     private void copyPhone(Context context, ContactsPojo contactPojo) {
         if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
             android.text.ClipboardManager clipboard =
-                  (android.text.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+            (android.text.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
             clipboard.setText(contactPojo.phone);
         } else {
             android.content.ClipboardManager clipboard =
-                  (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+            (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
             android.content.ClipData clip = android.content.ClipData.newPlainText(
-                  "Phone number for " + contactPojo.displayName,
-                  contactPojo.phone);
+            "Phone number for " + contactPojo.displayName,
+            contactPojo.phone);
             clipboard.setPrimaryClip(clip);
         }
     }
@@ -166,7 +167,7 @@ public class ContactsResult extends Result {
         Intent viewContact = new Intent(Intent.ACTION_VIEW);
 
         viewContact.setData(Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_LOOKUP_URI,
-              String.valueOf(contactPojo.lookupKey)));
+        String.valueOf(contactPojo.lookupKey)));
         viewContact.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         viewContact.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
         context.startActivity(viewContact);
@@ -186,7 +187,6 @@ public class ContactsResult extends Result {
                 queryInterface.launchOccurred(-1, ContactsResult.this);
             }
         }, KissApplication.TOUCH_DELAY);
-
     }
 
     private void launchCall(final Context context) {
@@ -203,6 +203,5 @@ public class ContactsResult extends Result {
                 queryInterface.launchOccurred(-1, ContactsResult.this);
             }
         }, KissApplication.TOUCH_DELAY);
-
     }
 }

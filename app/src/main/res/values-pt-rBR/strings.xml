@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<resources><string name="settings_battery">Bateria</string>
+<resources>
+    <string name="settings_battery">Bateria</string>
     <string name="ui_item_contact_hint_message">Mensagem</string>
     <string name="ui_item_contact_hint_call">Ligar</string>
 
@@ -33,19 +34,19 @@
     <string name="history_hide_name">Interface minimalista</string>
     <string name="history_onclick_name">Interface minimalista: Mostrar histórico ao clicar</string>
     <string name="portrait_title">Forçar modo de retrato</string>
-    <string name="ui_item_search">Pesquisar por \"%s\"</string>
+    <string name="ui_item_search">%1$s Pesquisar por \"%2$s\"</string>
     <string name="ui_search_hint">Pesquisar apps, contatos, …</string>
     <string name="ui_empty_2">Veja sempre seu histórico</string>
     <string name="ui_empty_3">Acesso rápido aos aplicativos mais usados</string>
     <string name="ui_empty_1">Comece pesquisando por algo</string>
     <string name="aliases_name">Apelidos</string>
 
-    <string name="shortcuts_name">Atalhos</string>    
+    <string name="shortcuts_name">Atalhos</string>
 
     <string name="main_kiss">Exibir favoritos e lista de apps</string>
     <string name="main_kiss_back">Exibir histórico</string>
     <string name="reset_name">Limpar histórico</string>
-    <string name="reset_warn">Você realmente quer limpar histórico?</string>    
+    <string name="reset_warn">Você realmente quer limpar histórico?</string>
     <string name="keyboard_name">Exibir teclado</string>
     <string name="icons_hide_main">Ocultar ícones dos apps</string>
     <string name="icons_hide_desc">Habilitar em dispositivos lentos</string>
@@ -69,7 +70,7 @@
     <string name="toggle_sync">Sincronização</string>
     <string name="toggle_autorotate">Autorrotação</string>
     <string name="menu_wallpaper">Trocar plano de fundo</string>
-    <string name="application_not_found">Ops... não é possível iniciar esse app.</string>
+    <string name="application_not_found">Ops… não é possível iniciar esse app.</string>
     <string name="history_erased">Histórico limpo.</string>
 
     <string name="removed_item">Removido</string>
@@ -85,8 +86,8 @@
 
     <string name="order_apps_name">Ordem da lista de apps</string>
 
-<string name="activity_setting">Configurações do launcher</string>
+    <string name="activity_setting">Configurações do launcher</string>
     <string name="toggles_on">%s ativado</string>
     <string name="toggles_off">%s desativado</string>
 
-    </resources>
+</resources>

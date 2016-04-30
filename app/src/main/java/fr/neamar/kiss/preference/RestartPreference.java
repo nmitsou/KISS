@@ -17,7 +17,5 @@ public class RestartPreference extends DialogPreference {
         if(which == DialogInterface.BUTTON_POSITIVE) {
             System.exit(0);
         }
-
     }
-
 }

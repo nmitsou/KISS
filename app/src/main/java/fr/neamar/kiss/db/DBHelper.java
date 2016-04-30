@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import fr.neamar.kiss.pojo.ShortcutsPojo;
 
 public class DBHelper {
+    private DBHelper() {
+    }
+
     private static SQLiteDatabase getDatabase(Context context) {
         DB db = new DB(context);
         return db.getReadableDatabase();
@@ -72,14 +75,13 @@ public class DBHelper {
         // String selection, String[] selectionArgs, String groupBy, String
         // having, String orderBy, String limit)
         Cursor cursor = db.query(true, "history", new String[] {"record", "1"}, null, null,
-              null, null, "_id DESC", Integer.toString(limit));
+        null, null, "_id DESC", Integer.toString(limit));
 
         records = readCursor(cursor);
         cursor.close();
         db.close();
         return records;
     }
-
 
     /**
      * Retrieve history size
@@ -94,7 +96,7 @@ public class DBHelper {
         // String selection, String[] selectionArgs, String groupBy, String
         // having, String orderBy, String limit)
         Cursor cursor = db.query(false, "history", new String[] {"COUNT(*)"}, null, null,
-              null, null, null, null);
+        null, null, null, null);
 
         cursor.moveToFirst();
         int historyLength = cursor.getInt(0);
@@ -119,7 +121,7 @@ public class DBHelper {
         // String[] selectionArgs, String groupBy, String having, String
         // orderBy)
         Cursor cursor = db.query("history", new String[] {"record", "COUNT(*) AS count"},
-              "query LIKE ?", new String[] {query + "%"}, "record", null, "COUNT(*) DESC", "10");
+        "query LIKE ?", new String[] {query + "%"}, "record", null, "COUNT(*) DESC", "10");
         records = readCursor(cursor);
         cursor.close();
         db.close();
@@ -146,7 +148,6 @@ public class DBHelper {
         db.close();
     }
 
-
     public static ArrayList<ShortcutRecord> getShortcuts(Context context) {
         ArrayList<ShortcutRecord> records = new ArrayList<>();
         SQLiteDatabase db = getDatabase(context);
@@ -155,7 +156,7 @@ public class DBHelper {
         // String[] selectionArgs, String groupBy, String having, String
         // orderBy)
         Cursor cursor = db.query("shortcuts", new String[] {"name", "package", "icon", "intent_uri", "icon_blob"},
-              null, null, null, null, null);
+        null, null, null, null, null);
 
         cursor.moveToFirst();
         while(!cursor.isAfterLast()) {
@@ -197,7 +198,7 @@ public class DBHelper {
         // String[] selectionArgs, String groupBy, String having, String
         // orderBy)
         Cursor cursor = db.query("widgets", new String[] {"_id"},
-              null, null, null, null, null);
+        null, null, null, null, null);
         cursor.moveToFirst();
         while(!cursor.isAfterLast()) {
             widgets.add(cursor.getInt(0));
@@ -215,7 +216,7 @@ public class DBHelper {
         // String[] selectionArgs, String groupBy, String having, String
         // orderBy)
         Cursor cursor = db.query("shortcuts", new String[] {"name", "package", "icon", "intent_uri", "icon_blob"},
-              "intent_uri LIKE ?", new String[] {"%" + packageName + "%"}, null, null, null);
+        "intent_uri LIKE ?", new String[] {"%" + packageName + "%"}, null, null, null);
 
         cursor.moveToFirst();
         while(!cursor.isAfterLast()) { // remove from history

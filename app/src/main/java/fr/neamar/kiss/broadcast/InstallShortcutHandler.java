@@ -22,8 +22,9 @@ public class InstallShortcutHandler extends BroadcastReceiver {
         DataHandler dh = KissApplication.getDataHandler(context);
         ShortcutsProvider sp = dh.getShortcutsProvider();
 
-        if(sp == null)
+        if(sp == null) {
             return;
+        }
 
         String name = data.getStringExtra(Intent.EXTRA_SHORTCUT_NAME);
         Log.d("onReceive", "Received shortcut " + name);
@@ -39,7 +40,7 @@ public class InstallShortcutHandler extends BroadcastReceiver {
         pojo.intentUri = target.toUri(0);
 
         //get embedded icon
-        Bitmap icon = (Bitmap) data.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON);
+        Bitmap icon = data.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON);
         if(icon != null) {
             Log.d("onReceive", "Shortcut " + name + " has embedded icon");
             pojo.icon = icon;
@@ -85,5 +86,4 @@ public class InstallShortcutHandler extends BroadcastReceiver {
 
         return pojo;
     }
-
 }

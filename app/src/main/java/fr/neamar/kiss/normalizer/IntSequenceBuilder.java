@@ -10,7 +10,6 @@ class IntSequenceBuilder {
     private int[] data;
     private int size;
 
-
     /**
      * @param capacity The initial size of the internal storage array
      */
@@ -19,7 +18,6 @@ class IntSequenceBuilder {
         this.data = new int[capacity];
         this.size = 0;
     }
-
 
     /**
      * Add a new element to this builder
@@ -40,7 +38,6 @@ class IntSequenceBuilder {
         // Increment stored element number counter
         this.size++;
     }
-
 
     /**
      * Export an array with the current data stored in this builder

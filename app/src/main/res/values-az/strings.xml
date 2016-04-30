@@ -3,7 +3,7 @@
     <string name="app_name">KISS başladıcı</string>
     <string name="activity_setting">KISS parametrləri</string>
     <string name="ui_search_hint">Axtar: Proqramlar, kontaktlar, …</string>
-    <string name="ui_item_search">Şunu axtar: \"%s\"</string>
+    <string name="ui_item_search">%1$s Şunu axtar: \"%2$s\"</string>
     <string name="ui_item_contact_hint_message">Mesaj</string>
     <string name="title_ui">İstifadəçi İnterfeysi</string>
     <string name="title_history">Tarix</string>
@@ -62,7 +62,7 @@
     <string name="toggle_silent">Səssiz</string>
     <string name="toggle_data">Mobil məlumat</string>
     <string name="menu_wallpaper">Divar kağızını dəyişdir</string>
-    <string name="application_not_found">Oy... O proqramı başlatamadıq.</string>
+    <string name="application_not_found">Oy… O proqramı başlatamadıq.</string>
     <string name="history_erased">Keçmiş silindi.</string>
 
     <string name="removed_item">Qaldırıldı</string>
@@ -86,12 +86,12 @@
     <string name="toast_hibernate_completed">%s yuxu rejimine alındı, oyandırmaq üçün yenidən açın.</string>
     <string name="toast_hibernate_error">%s yuxu rejimine alınamadı.</string>
     <string name="spellcheck_name">İmla yoxlamasını aktivləşdir</string>
-<string name="portrait_title">Dikey rejimi zorla</string>
+    <string name="portrait_title">Dikey rejimi zorla</string>
     <string name="toggle_sync">Sinxronizasiya</string>
     <string name="menu_phone_create">Kontakt yarat</string>
 
     <string name="order_apps_name">Proqram siyahı sırası</string>
 
-<string name="history_hide_desc">Keçmişi və daxil ekranını gizlət</string>
+    <string name="history_hide_desc">Keçmişi və daxil ekranını gizlət</string>
     <string name="history_hide_name">Minimalistik interfeys</string>
-    </resources>
+</resources>

@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<resources><string name="ui_item_phone">Ring «%s»</string>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="ui_item_phone">Ring «%s»</string>
     <string name="title_advanced">Avanserte innstillinger</string>
     <string name="ui_item_contact_hint_call">Ring</string>
 
@@ -30,7 +31,7 @@
 
     <string name="ui_empty_2">Loggen er alltid tilgjengelig</string>
     <string name="ui_empty_2_sub">For hurtig tilgang</string>
-    <string name="ui_item_search">Søk etter «%s»</string>
+    <string name="ui_item_search">%1$s Søk etter «%2$s»</string>
     <string name="ui_item_contact_hint_message">Melding</string>
     <string name="stub_application">Appnavn</string>
     <string name="stub_contact">Kontaktnavn</string>
@@ -81,7 +82,7 @@
     <string name="order_apps_name">Sortering for appliste</string>
 
     <string name="alias_contacts">kontakter,folk,relasjoner</string>
-    <string name="alias_web">internett,web,browser</string>
+    <string name="alias_web" tools:ignore="Typos">internett,web,browser</string>
     <string name="alias_mail">email,e-post,epåst</string>
     <string name="alias_market">marked,store</string>
     <string name="alias_clock">klokke,alarm,nedtelling,tidsur</string>
@@ -94,8 +95,8 @@
     <string name="stub_toggle">Innstilling å slå av eller på</string>
     <string name="stub_contact_phone">+330 12 34 56 78</string>
     <string name="stub_phone">Ring +330 12 34 56 78</string>
-    <string name="shortcuts_name">Snarveier</string>    
+    <string name="shortcuts_name">Snarveier</string>
 
-    <string name="reset_warn">Vil du tømme loggen?</string>    
+    <string name="reset_warn">Vil du tømme loggen?</string>
     <string name="toggle_autorotate">Autoroter</string>
-    </resources>
+</resources>

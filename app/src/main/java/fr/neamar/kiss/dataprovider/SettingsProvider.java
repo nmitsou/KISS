@@ -26,18 +26,18 @@ public class SettingsProvider extends Provider<SettingsPojo> {
         for(SettingsPojo setting : pojos) {
             relevance = 0;
             settingNameLowerCased = setting.nameNormalized;
-            if(settingNameLowerCased.startsWith(query))
+            if(settingNameLowerCased.startsWith(query)) {
                 relevance = 10;
-            else if(settingNameLowerCased.contains(" " + query))
+            } else if(settingNameLowerCased.contains(" " + query)) {
                 relevance = 5;
-            else if(settingName.startsWith(query)) {
+            } else if(settingName.startsWith(query)) {
                 // Also display for a search on "settings" for instance
                 relevance = 4;
             }
 
             if(relevance > 0) {
                 setting.displayName = setting.name.replaceFirst(
-                      "(?i)(" + Pattern.quote(query) + ")", "{$1}");
+                "(?i)(" + Pattern.quote(query) + ")", "{$1}");
                 setting.relevance = relevance;
                 results.add(setting);
             }

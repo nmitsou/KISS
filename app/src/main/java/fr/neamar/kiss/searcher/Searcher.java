@@ -1,6 +1,5 @@
 package fr.neamar.kiss.searcher;
 
-
 import android.os.AsyncTask;
 
 import java.util.List;

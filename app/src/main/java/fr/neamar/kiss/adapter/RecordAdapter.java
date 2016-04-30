@@ -43,22 +43,23 @@ public class RecordAdapter extends ArrayAdapter<Result> {
     }
 
     public int getItemViewType(int position) {
-        if(results.get(position) instanceof AppResult)
+        if(results.get(position) instanceof AppResult) {
             return 0;
-        else if(results.get(position) instanceof SearchResult)
+        } else if(results.get(position) instanceof SearchResult) {
             return 1;
-        else if(results.get(position) instanceof ContactsResult)
+        } else if(results.get(position) instanceof ContactsResult) {
             return 2;
-        else if(results.get(position) instanceof TogglesResult)
+        } else if(results.get(position) instanceof TogglesResult) {
             return 3;
-        else if(results.get(position) instanceof SettingsResult)
+        } else if(results.get(position) instanceof SettingsResult) {
             return 4;
-        else if(results.get(position) instanceof PhoneResult)
+        } else if(results.get(position) instanceof PhoneResult) {
             return 5;
-        else if(results.get(position) instanceof ShortcutsResult)
+        } else if(results.get(position) instanceof ShortcutsResult) {
             return 6;
-        else
+        } else {
             return -1;
+        }
     }
 
     @Override
@@ -104,7 +105,6 @@ public class RecordAdapter extends ArrayAdapter<Result> {
                 parent.launchOccurred(results.size() - position, result);
             }
         }, KissApplication.TOUCH_DELAY * 3);
-
     }
 
     public void removeResult(Result result) {

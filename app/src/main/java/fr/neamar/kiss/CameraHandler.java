@@ -10,6 +10,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.util.List;
 
+@SuppressWarnings("deprecation") // android.hardware.camera2 requires SDK 21+
 public class CameraHandler {
     public static final String TAG = "CameraHandler";
     private Camera camera = null;
@@ -67,10 +68,11 @@ public class CameraHandler {
         try {
             openCamera();
             Parameters parms = camera.getParameters();
-            if(state)
+            if(state) {
                 parms.setFlashMode(Parameters.FLASH_MODE_TORCH);
-            else
+            } else {
                 parms.setFlashMode(Parameters.FLASH_MODE_OFF);
+            }
 
             camera.setParameters(parms);
             if(state) {//enable torch but retain camera
@@ -95,12 +97,14 @@ public class CameraHandler {
                 releaseCamera();
 
                 //no flash
-                if(torchModes == null)
+                if(torchModes == null) {
                     return false;
+                }
 
                 for(String mode : torchModes) {
-                    if(mode.equalsIgnoreCase(Camera.Parameters.FLASH_MODE_TORCH))
+                    if(mode.equalsIgnoreCase(Camera.Parameters.FLASH_MODE_TORCH)) {
                         torchAvailable = true;
+                    }
                 }
             }
         } catch(Exception ex) {

@@ -46,7 +46,7 @@ public class ContactsProvider extends Provider<ContactsPojo> {
                 matchPositionEnd = 0;
                 if(contact.phoneSimplified.startsWith(query)) {
                     relevance = 10;
-                } else if(contact.phoneSimplified.indexOf(query) > -1) {
+                } else if(contact.phoneSimplified.contains(query)) {
                     relevance = 5;
                 }
             }
@@ -56,11 +56,13 @@ public class ContactsProvider extends Provider<ContactsPojo> {
                 // was phoned :
                 relevance += contact.timesContacted;
                 // Increase relevance for starred contacts:
-                if(contact.starred)
+                if(contact.starred) {
                     relevance += 30;
+                }
                 // Decrease for home numbers:
-                if(contact.homeNumber)
+                if(contact.homeNumber) {
                     relevance -= 1;
+                }
 
                 contact.setDisplayNameHighlightRegion(matchPositionStart, matchPositionEnd);
                 contact.relevance = relevance;
@@ -94,12 +96,12 @@ public class ContactsProvider extends Provider<ContactsPojo> {
 
     public Pojo findByName(String name) {
         for(Pojo pojo : pojos) {
-            if(pojo.name.equals(name))
+            if(pojo.name.equals(name)) {
                 return pojo;
+            }
         }
         return null;
     }
-
 
     /**
      * Find a ContactsPojo from a phoneNumber

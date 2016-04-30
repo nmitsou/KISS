@@ -4,7 +4,7 @@
     <string name="app_name">KISS launcher</string>
     <string name="activity_setting">Ajustes de KISS</string>
     <string name="ui_search_hint">Buscar aplicaciones, contactos, …</string>
-    <string name="ui_item_search">Buscar “%s”</string>
+    <string name="ui_item_search">%1$s Buscar “%2$s”</string>
     <string name="ui_item_phone">Llamar “%s”</string>
     <string name="ui_item_contact_hint_message">Mensaje</string>
     <string name="ui_item_contact_hint_call">Llamar</string>
@@ -35,9 +35,9 @@
     <string name="settings_name">Ajustes</string>
 
     <string name="phone_name">Teléfono</string>
-    
+
     <string name="shortcuts_name">Atajos</string>
-    
+
     <string name="stub_application">Nombre de la Aplicación</string>
     <string name="stub_contact">Contacto</string>
     <string name="stub_contact_phone">+330 12 34 56 78</string>
@@ -115,4 +115,4 @@
     <string name="enable_phone">Incluir datos de las llamadas en el historial</string>
     <string name="enable_app">Incluir datos de aplicaciones instaladas en el historial</string>
 
-    </resources>
+</resources>

@@ -36,8 +36,9 @@ public class ShortcutsResult extends Result {
 
     @Override
     public View display(final Context context, int position, View v) {
-        if(v == null)
+        if(v == null) {
             v = inflateFromId(context, R.layout.item_shortcut);
+        }
 
         TextView appName = (TextView) v.findViewById(R.id.item_app_name);
         appName.setText(enrichText(shortcutPojo.displayName));
@@ -67,7 +68,8 @@ public class ShortcutsResult extends Result {
         }
 
         if(shortcutPojo.icon != null) {
-            shortcutIcon.setImageDrawable(new BitmapDrawable(shortcutPojo.icon));
+            BitmapDrawable drawable = new BitmapDrawable(context.getResources(), shortcutPojo.icon);
+            shortcutIcon.setImageDrawable(drawable);
             appIcon.setImageDrawable(appDrawable);
         } else {
             // No icon for this shortcut, use app icon
@@ -88,7 +90,6 @@ public class ShortcutsResult extends Result {
             // Application was just removed?
             Toast.makeText(context, R.string.application_not_found, Toast.LENGTH_LONG).show();
         }
-
     }
 
     @Override
@@ -105,7 +106,6 @@ public class ShortcutsResult extends Result {
                 // Also remove item, since it will be uninstalled
                 parent.removeResult(this);
                 return true;
-
         }
         return super.popupMenuClickHandler(context, parent, item);
     }
@@ -116,5 +116,4 @@ public class ShortcutsResult extends Result {
             dh.removeShortcut(shortcutPojo);
         }
     }
-
 }

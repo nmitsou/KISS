@@ -57,8 +57,9 @@ public class RootHandler {
             p.getOutputStream().flush();
             p.getOutputStream().close();
             int result = p.waitFor();
-            if(result != 0)
+            if(result != 0) {
                 throw new Exception("Command execution failed " + result);
+            }
             return true;
         } catch(Exception e) {
             Log.e("simpleExecuteCommand", " " + e);
@@ -69,5 +70,4 @@ public class RootHandler {
         }
         return false;
     }
-
 }

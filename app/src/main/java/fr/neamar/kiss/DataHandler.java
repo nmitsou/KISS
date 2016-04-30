@@ -34,15 +34,14 @@ import fr.neamar.kiss.pojo.PojoComparator;
 import fr.neamar.kiss.pojo.ShortcutsPojo;
 
 public class DataHandler extends BroadcastReceiver
-      implements SharedPreferences.OnSharedPreferenceChangeListener {
+implements SharedPreferences.OnSharedPreferenceChangeListener {
     /**
      * List all known providers
      */
     final static private List<String> PROVIDER_NAMES = Arrays.asList(
-          "alias", "app", "contacts", "phone", "search", "settings", "shortcuts", "toggles"
+    "alias", "app", "contacts", "phone", "search", "settings", "shortcuts", "toggles"
     );
 
-    final private SharedPreferences prefs;
     final private Context context;
     private String currentQuery;
 
@@ -65,12 +64,12 @@ public class DataHandler extends BroadcastReceiver
         this.context.sendBroadcast(i);
 
         // Monitor changes for service preferences (to automatically start and stop services)
-        this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        this.prefs.registerOnSharedPreferenceChangeListener(this);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        prefs.registerOnSharedPreferenceChangeListener(this);
 
         // Connect to initial providers
         for(String providerName : PROVIDER_NAMES) {
-            if(this.prefs.getBoolean("enable-" + providerName, true)) {
+            if(prefs.getBoolean("enable-" + providerName, true)) {
                 this.connectToProvider(providerName);
             }
         }
@@ -241,8 +240,9 @@ public class DataHandler extends BroadcastReceiver
         currentQuery = query;
 
         // Have we ever made the same query and selected something ?
-        ArrayList<ValuedHistoryRecord> lastIdsForQuery = DBHelper.getPreviousResultsForQuery(
-              context, query);
+
+        List<ValuedHistoryRecord> lastIdsForQuery = DBHelper.getPreviousResultsForQuery(
+        context, query);
         HashMap<String, Integer> knownIds = new HashMap<>();
         for(ValuedHistoryRecord id : lastIdsForQuery) {
             knownIds.put(id.record, id.value);
@@ -253,7 +253,7 @@ public class DataHandler extends BroadcastReceiver
 
         for(ProviderEntry entry : this.providers.values()) {
             // Retrieve results for query:
-            ArrayList<Pojo> pojos = entry.provider.getResults(query);
+            List<Pojo> pojos = entry.provider.getResults(query);
 
             // Add results to list
             for(Pojo pojo : pojos) {
@@ -285,7 +285,7 @@ public class DataHandler extends BroadcastReceiver
         ArrayList<Pojo> history = new ArrayList<>(itemCount);
 
         // Read history
-        ArrayList<ValuedHistoryRecord> ids = DBHelper.getHistory(context, itemCount);
+        List<ValuedHistoryRecord> ids = DBHelper.getHistory(context, itemCount);
 
         // Find associated items
         for(int i = 0; i < ids.size(); i++) {
@@ -381,7 +381,7 @@ public class DataHandler extends BroadcastReceiver
         ArrayList<Pojo> favorites = new ArrayList<>(limit);
 
         String favApps = PreferenceManager.getDefaultSharedPreferences(this.context).
-              getString("favorite-apps-list", "");
+                                                                                    getString("favorite-apps-list", "");
         List<String> favAppsList = Arrays.asList(favApps.split(";"));
 
         // Find associated items
@@ -401,7 +401,7 @@ public class DataHandler extends BroadcastReceiver
     public boolean addToFavorites(MainActivity context, String id) {
 
         String favApps = PreferenceManager.getDefaultSharedPreferences(context).
-              getString("favorite-apps-list", "");
+                                                                               getString("favorite-apps-list", "");
         if(favApps.contains(id + ";")) {
             //shouldn't happen
             return false;
@@ -412,7 +412,7 @@ public class DataHandler extends BroadcastReceiver
             favApps = favApps.substring(favApps.indexOf(";") + 1);
         }
         PreferenceManager.getDefaultSharedPreferences(context).edit()
-              .putString("favorite-apps-list", favApps + id + ";").commit();
+        .putString("favorite-apps-list", favApps + id + ";").commit();
 
         context.retrieveFavorites();
 
@@ -425,7 +425,12 @@ public class DataHandler extends BroadcastReceiver
      * @param id pojo.id of item to record
      */
     public void addToHistory(String id) {
-        DBHelper.insertHistory(this.context, currentQuery, id);
+        boolean frozen = PreferenceManager.getDefaultSharedPreferences(context).
+                                                                               getBoolean("freeze-history", false);
+
+        if(!frozen) {
+            DBHelper.insertHistory(this.context, currentQuery, id);
+        }
     }
 
     private Pojo getPojo(String id) {
@@ -441,21 +446,19 @@ public class DataHandler extends BroadcastReceiver
 
     public void removeFromFavorites(Pojo pojo, Context context) {
         String favApps = PreferenceManager.getDefaultSharedPreferences(context).
-              getString("favorite-apps-list", "");
+                                                                               getString("favorite-apps-list", "");
         if(!favApps.contains(pojo.id + ";")) {
             return;
         }
 
         PreferenceManager.getDefaultSharedPreferences(context).edit()
-              .putString("favorite-apps-list", favApps.replace(pojo.id + ";", "")).commit();
+        .putString("favorite-apps-list", favApps.replace(pojo.id + ";", "")).commit();
 
         ((MainActivity) context).retrieveFavorites();
-
     }
 
     protected class ProviderEntry {
         public IProvider provider = null;
         public ServiceConnection connection = null;
     }
-
 }

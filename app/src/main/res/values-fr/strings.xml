@@ -4,7 +4,7 @@
     <string name="app_name">KISS launcher</string>
     <string name="activity_setting">Paramètres de KISS</string>
     <string name="ui_search_hint">Rechercher des applications, contacts…</string>
-    <string name="ui_item_search">Rechercher « %s »</string>
+    <string name="ui_item_search">%1$s Rechercher « %2$s »</string>
     <string name="ui_item_phone">Appeler « %s »</string>
     <string name="ui_item_contact_hint_message">SMS</string>
     <string name="ui_item_contact_hint_call">Appeler</string>
@@ -13,9 +13,8 @@
     <string name="title_history">Historique</string>
     <string name="title_providers">Source de données</string>
     <string name="menu_settings">Paramètres du périphérique</string>
-    <string name="menu_preferences">Paramètres de KISS</string>
     <string name="menu_add_widget">Ajouter un widget</string>
-    <string name="no_favorites">Aucun favori pour l\'instant ! Utilisez l\'application, puis réessayez.</string>
+    <string name="no_favorites">Aucun favori pour l\'instant. Ajoutez-en en utilisant l\'appui long.</string>
 
     <string name="ui_empty_1">Recherchez… partout</string>
     <string name="ui_empty_1_sub">Applications, contacts, réglages…</string>
@@ -30,11 +29,11 @@
 
     <string name="contacts_name">Contacts</string>
 
-    <string name="search_name">Recherche Google</string>
+    <string name="search_name">Recherche Internet</string>
 
-    <string name="settings_name">Paramètres</string>
+    <string name="settings_name">Paramètres du périphérique</string>
 
-    <string name="phone_name">Téléphone</string>
+    <string name="phone_name">Numéros de téléphone</string>
 
     <string name="stub_application">Nom de l\'application</string>
     <string name="stub_contact">Nom du contact</string>
@@ -46,8 +45,8 @@
     <string name="main_clear">Vider le champ de recherche</string>
     <string name="main_kiss">Afficher les favoris et la liste d\'applications</string>
     <string name="main_kiss_back">Afficher l\'historique</string>
-    <string name="reset_name">Vider l\'historique</string>
-    <string name="keyboard_name">Afficher le clavier</string>
+    <string name="reset_name">Vider l\'historique de KISS</string>
+    <string name="keyboard_name">Afficher le clavier au démarrage</string>
     <string name="spellcheck_name">Activer la vérification orthographique</string>
 
     <string name="alias_phone">téléphone,numéroteur,composeur,appeler</string>
@@ -78,7 +77,7 @@
     <string name="menu_app_uninstall">Désinstaller</string>
     <string name="menu_contact_copy_phone">Copier le numéro de téléphone</string>
 
-    <string name="theme_name">Thème</string>
+    <string name="theme_name">Interface de thème</string>
 
     <string name="title_advanced">Paramètres avancés</string>
     <string name="root_mode_desc">Activer les fonctionnalités superutilisateur (pour hiberner des applications)</string>
@@ -100,10 +99,10 @@
     <string name="shortcuts_name">Raccourcis</string>
     <string name="reset_warn">Voulez-vous vraiment supprimer votre historique ?</string>
     <string name="icons_hide_main">Masquer les icones des applications</string>
-    <string name="icons_hide_desc">Pour les petits périphériques </string>
+    <string name="icons_hide_desc">Utile sur les périphériques lents</string>
     <string name="history_onclick_name">Afficher l\'historique au touch</string>
-    <string name="enable_app">Ajouter les nouvelles apps</string>
-    <string name="enable_phone">Ajouter les appels entrants</string>
+    <string name="enable_app">Afficher les applications récemment installés dans l\'historique</string>
+    <string name="enable_phone">Afficher les appels entrants dans l\'historique</string>
     <string name="enable_sms">Ajouter les expéditeurs de SMS entrants</string>
     <string name="toggles_on">%s activé</string>
     <string name="toggles_off">%s désactivé</string>
@@ -116,12 +115,15 @@
     <string name="toast_favorites_added">%s a été ajouté aux favoris</string>
 
     <string name="reset_excluded_apps_warn">Voulez-vous vraiment réinitialiser votre liste d\'applications masquées ?</string>
-    <string name="reset_favorites_name">Réinitialiser les favoris</string>
+    <string name="reset_favorites_name">Réinitialiser votre liste de favoris</string>
     <string name="shortcut_added">Raccourci ajouté à KISS.</string>
     <string name="excluded_app_list_added">Application masquée. Utilisez les paramètres pour réinitialiser les applications masquées</string>
     <string name="settings_nfc">NFC</string>
     <string name="settings_tethering">Hotspot</string>
     <string name="icons_pack_default_name">Icones par défaut</string>
-    <string name="icons_pack_name">Thème des icones</string>
+    <string name="icons_pack_name">Thème d’icônes (ADW.Launcher theme)</string>
 
+    <string name="search_desc">Active les recherches via Google, DuckDuckGo, Bing etc.</string>
+    <string name="restart_name">Redémarrer KISS</string>
+    <string name="menu_remove_widget">Supprimer le dernier widget</string>
 </resources>

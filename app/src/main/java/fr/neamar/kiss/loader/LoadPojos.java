@@ -33,5 +33,4 @@ public abstract class LoadPojos<T extends Pojo> extends AsyncTask<Void, Void, Ar
         super.onPostExecute(result);
         provider.loadOver(result);
     }
-
 }

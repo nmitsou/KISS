@@ -17,6 +17,6 @@ public class NullSearcher extends Searcher {
 
     @Override
     protected List<Pojo> doInBackground(Void... voids) {
-        return new ArrayList<Pojo>();
+        return new ArrayList<>();
     }
 }

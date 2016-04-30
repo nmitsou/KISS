@@ -23,8 +23,9 @@ public class SettingsResult extends Result {
 
     @Override
     public View display(Context context, int position, View v) {
-        if(v == null)
+        if(v == null) {
             v = inflateFromId(context, R.layout.item_setting);
+        }
 
         String settingPrefix = "<small><small>" + context.getString(R.string.settings_prefix) + "</small></small>";
         TextView settingName = (TextView) v.findViewById(R.id.item_setting_name);

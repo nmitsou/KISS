@@ -1,8 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources><string name="app_name">KISS قاذفة</string>
+<resources>
+    <string name="app_name">KISS قاذفة</string>
     <string name="activity_setting">إعدادات KISS</string>
     <string name="ui_search_hint">بحث التطبيقات، والاتصالات، …</string>
-    <string name="ui_item_search">البحث عن \"%s\"</string>
+    <string name="ui_item_search">%1$s البحث عن \"%2$s\"</string>
     <string name="ui_item_phone">اتصال \"%s\"</string>
     <string name="ui_item_contact_hint_message">الرسالة</string>
     <string name="ui_item_contact_hint_call">مكالمة</string>
@@ -22,13 +23,14 @@
     <string name="ui_empty_3_sub">KISS قاذفة يتعلم من عاداتك</string>
 
     <string name="toggles_name">المسامير</string>
-    <string name="toggles_on">s% تفعيلها</string>
-    <string name="toggles_off">s% المعطلة</string>
+    <string name="toggles_on">%s تفعيلها</string>
+    <string name="toggles_off">%s المعطلة</string>
 
     <string name="aliases_name">اسماء مستعارة</string>
 
     <string name="contacts_name">جهات الاتصال</string>
 
+    <string name="search_desc">تمكين البحث في الويب من جوجل</string>
     <string name="search_name">بحث جوجل</string>
 
     <string name="settings_name">إعدادات</string>
@@ -87,7 +89,7 @@
     <string name="toggle_sync">تزامن</string>
     <string name="toggle_autorotate">تدوير تلقائي</string>
     <string name="menu_wallpaper">تحديث ورق الجدران</string>
-    <string name="application_not_found">يصيح ... غير قادر على إطلاق هذا التطبيق.</string>
+    <string name="application_not_found">يصيح … غير قادر على إطلاق هذا التطبيق.</string>
     <string name="history_erased">محو التاريخ.</string>
     <string name="favorites_erased">المفضلة محوها.</string>
     <string name="menu_favorites_add">أضف الى المفضلة</string>

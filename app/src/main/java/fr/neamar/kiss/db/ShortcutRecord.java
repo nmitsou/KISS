@@ -11,5 +11,4 @@ public class ShortcutRecord {
     public String intentUri;
 
     public byte[] icon_blob;
-
 }

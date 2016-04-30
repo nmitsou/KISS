@@ -6,6 +6,9 @@ import android.telephony.PhoneNumberUtils;
 import java.util.Locale;
 
 public class PhoneNormalizer {
+    private PhoneNormalizer() {
+    }
+
     public static String normalizePhone(String phoneNumber) {
         if(phoneNumber == null) {
             return "";
@@ -14,6 +17,7 @@ public class PhoneNormalizer {
         if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             return PhoneNumberUtils.formatNumber(phoneNumber, Locale.getDefault().getCountry());
         } else {
+            //noinspection deprecation
             return PhoneNumberUtils.formatNumber(phoneNumber);
         }
     }

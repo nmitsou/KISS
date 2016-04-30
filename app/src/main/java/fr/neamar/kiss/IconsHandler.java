@@ -29,6 +29,7 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -41,13 +42,13 @@ public class IconsHandler {
     // map with available icons packs
     private HashMap<String, String> iconsPacks = new HashMap<>();
     // map with available drawable for an icons pack
-    private HashMap<String, String> packagesDrawables = new HashMap<>();
+    private Map<String, String> packagesDrawables = new HashMap<>();
     // instance of a resource object of an icon pack
     private Resources iconPackres;
     // package name of the icons pack
     private String iconsPackPackageName;
     // list of back images available on an icons pack
-    private List<Bitmap> backImages = new ArrayList<Bitmap>();
+    private List<Bitmap> backImages = new ArrayList<>();
     // bitmap mask of an icons pack
     private Bitmap maskImage = null;
     // front image of an icons pack
@@ -72,13 +73,12 @@ public class IconsHandler {
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
         loadIconsPack(prefs.getString("icons-pack", "default"));
-
     }
 
     /**
      * Parse icons pack metadata
      *
-     * @param packageName
+     * @param packageName Android package ID of the package to parse
      */
     public void loadIconsPack(String packageName) {
 
@@ -162,12 +162,12 @@ public class IconsHandler {
         } catch(Exception e) {
             Log.e(TAG, "Error parsing appfilter.xml " + e);
         }
-
     }
 
     private Bitmap loadBitmap(String drawableName) {
         int id = iconPackres.getIdentifier(drawableName, "drawable", iconsPackPackageName);
         if(id > 0) {
+            //noinspection deprecation: Resources.getDrawable(int, Theme) requires SDK 21+
             Drawable bitmap = iconPackres.getDrawable(id);
             if(bitmap instanceof BitmapDrawable) {
                 return ((BitmapDrawable) bitmap).getBitmap();
@@ -178,9 +178,6 @@ public class IconsHandler {
 
     /**
      * Get or generate icon for an app
-     *
-     * @param componentName
-     * @return
      */
     public Drawable getDrawableIconForPackage(ComponentName componentName) {
         try {
@@ -193,31 +190,31 @@ public class IconsHandler {
             if(drawable != null) { //there is a custom icon
                 int id = iconPackres.getIdentifier(drawable, "drawable", iconsPackPackageName);
                 if(id > 0) {
-                    Drawable bitmap = iconPackres.getDrawable(id);
-                    return bitmap;
+                    //noinspection deprecation: Resources.getDrawable(int, Theme) requires SDK 21+
+                    return iconPackres.getDrawable(id);
                 }
             }
 
             //search first in cache
             Drawable systemIcon = cacheGetDrawable(componentName.toString());
-            if(systemIcon != null)
+            if(systemIcon != null) {
                 return systemIcon;
+            }
 
             systemIcon = pm.getActivityIcon(componentName);
             if(systemIcon instanceof BitmapDrawable) {
-                Drawable generated = generateBitmap(componentName.toString(), systemIcon);
+                Drawable generated = generateBitmap(systemIcon);
                 cacheStoreDrawable(componentName.toString(), generated);
                 return generated;
             }
             return systemIcon;
-
         } catch(NameNotFoundException e) {
             Log.e(TAG, "Unable to found component " + componentName.toString() + e);
             return null;
         }
     }
 
-    private Drawable generateBitmap(String cacheKey, Drawable defaultBitmap) {
+    private Drawable generateBitmap(Drawable defaultBitmap) {
 
         // if no support images in the icon pack return the bitmap itself
         if(backImages.size() == 0) {
@@ -277,9 +274,8 @@ public class IconsHandler {
 
         for(ResolveInfo ri : launcherthemes) {
             String packageName = ri.activityInfo.packageName;
-            ApplicationInfo ai = null;
             try {
-                ai = pm.getApplicationInfo(packageName, PackageManager.GET_META_DATA);
+                ApplicationInfo ai = pm.getApplicationInfo(packageName, PackageManager.GET_META_DATA);
                 String name = pm.getApplicationLabel(ai).toString();
                 iconsPacks.put(packageName, name);
             } catch(PackageManager.NameNotFoundException e) {
@@ -324,7 +320,8 @@ public class IconsHandler {
         FileInputStream fis;
         try {
             fis = new FileInputStream(cacheGetFileName(key));
-            BitmapDrawable drawable = new BitmapDrawable(BitmapFactory.decodeStream(fis));
+            BitmapDrawable drawable =
+            new BitmapDrawable(this.ctx.getResources(), BitmapFactory.decodeStream(fis));
             fis.close();
             return drawable;
         } catch(Exception e) {
@@ -337,14 +334,9 @@ public class IconsHandler {
     /**
      * create path for icons cache like this
      * {cacheDir}/icons/{icons_pack_package_name}_{key_hash}.png
-     *
-     * @param key
-     * @return
      */
     private File cacheGetFileName(String key) {
-        File drawableFile = new File(getIconsCacheDir() + iconsPackPackageName + "_" + key.hashCode() + ".png");
-
-        return drawableFile;
+        return new File(getIconsCacheDir() + iconsPackPackageName + "_" + key.hashCode() + ".png");
     }
 
     private File getIconsCacheDir() {
@@ -357,12 +349,14 @@ public class IconsHandler {
     private void cacheClear() {
         File cacheDir = this.getIconsCacheDir();
 
-        if(!cacheDir.isDirectory())
+        if(!cacheDir.isDirectory()) {
             return;
+        }
 
         for(File item : cacheDir.listFiles()) {
-            item.delete();
+            if(!item.delete()) {
+                Log.w(TAG, "Failed to delete file: " + item.getAbsolutePath());
+            }
         }
     }
-
 }

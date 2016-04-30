@@ -64,11 +64,10 @@ public class ShortcutsProvider extends Provider<ShortcutsPojo> {
 
     public Pojo findByName(String name) {
         for(Pojo pojo : pojos) {
-            if(pojo.name.equals(name))
+            if(pojo.name.equals(name)) {
                 return pojo;
+            }
         }
         return null;
     }
-
-
 }

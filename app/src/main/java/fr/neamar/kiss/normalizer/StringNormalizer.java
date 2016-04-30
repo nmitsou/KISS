@@ -8,6 +8,9 @@ import java.text.Normalizer;
  * String utils to handle accented characters for search and highlighting
  */
 public class StringNormalizer {
+    private StringNormalizer() {
+    }
+
     /**
      * Make the given string easier to compare by performing a number of simplifications on it
      * <p/>
@@ -81,7 +84,6 @@ public class StringNormalizer {
         // before returning it.
         return new Pair<>(resultString.toString(), resultMap.toArray());
     }
-
 
     /**
      * Make the given string easier to compare by performing a number of simplifications on it
