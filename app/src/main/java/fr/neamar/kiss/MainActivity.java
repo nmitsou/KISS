@@ -32,6 +32,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
@@ -658,6 +659,25 @@ public class MainActivity extends Activity implements QueryInterface, KeyboardSc
         if(kissBar.getVisibility() != View.VISIBLE) {
             openOptionsMenu();
         }
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        //if motion movement ends
+        if ((event.getAction() == MotionEvent.ACTION_CANCEL) || (event.getAction() == MotionEvent.ACTION_UP)) {
+            //if history is hidden
+            if(prefs.getString("mini-ui", "history").equals("widgets")) {
+                //if not on the application list and not searching for something
+                if ((kissBar.getVisibility() != View.VISIBLE) && (searchEditText.getText().toString().isEmpty())) {
+                    //if list is empty
+                    if ((this.list.getAdapter() == null) || (this.list.getAdapter().getCount() == 0)) {
+                        searcher = new HistorySearcher(MainActivity.this);
+                        searcher.execute();
+                    }
+                }
+            }
+        }
+        return super.dispatchTouchEvent(event);
     }
 
     /**
