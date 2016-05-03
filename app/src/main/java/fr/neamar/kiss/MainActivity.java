@@ -251,7 +251,7 @@ public class MainActivity extends Activity implements QueryInterface, KeyboardSc
             }
         });
 
-        if(!prefs.getString("mini-ui", "history").equals("history-intro")) {
+        if(!prefs.getString("mini-ui", "history").equals("widgets-history")) {
             searchEditText.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
