@@ -47,6 +47,7 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 import fr.neamar.kiss.adapter.RecordAdapter;
 import fr.neamar.kiss.pojo.Pojo;
@@ -60,6 +61,7 @@ import fr.neamar.kiss.searcher.Searcher;
 import fr.neamar.kiss.ui.BlockableListView;
 import fr.neamar.kiss.ui.BottomPullEffectView;
 import fr.neamar.kiss.ui.KeyboardScrollHider;
+import fr.neamar.kiss.widgets.KissAppWidgetHost;
 
 public class MainActivity extends Activity implements QueryInterface, KeyboardScrollHider.KeyboardHandler {
 
@@ -251,21 +253,38 @@ public class MainActivity extends Activity implements QueryInterface, KeyboardSc
             }
         });
 
-        if(!prefs.getString("mini-ui", "history").equals("widgets-history")) {
             searchEditText.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //if not on the application list and not searching for something
-                    if((kissBar.getVisibility() != View.VISIBLE) && (searchEditText.getText().toString().isEmpty())) {
-                        //if list is empty
-                        if((list.getAdapter() == null) || (list.getAdapter().getCount() == 0)) {
-                            searcher = new HistorySearcher(MainActivity.this);
-                            searcher.execute();
+                    if (prefs.getString("mini-ui", "history").equals("history-onclick")) {
+                        //if not on the application list and not searching for something
+                        if ((kissBar.getVisibility() != View.VISIBLE) && (searchEditText.getText().toString().isEmpty())) {
+                            //if list is empty
+                            if ((list.getAdapter() == null) || (list.getAdapter().getCount() == 0)) {
+                                searcher = new HistorySearcher(MainActivity.this);
+                                searcher.execute();
+                            }
                         }
                     }
                 }
             });
-        }
+            View widgetsView = findViewById(R.id.widgets);
+            widgetsView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (prefs.getString("mini-ui", "history").equals("history-onclick")) {
+                        //if not on the application list and not searching for something
+                        if ((kissBar.getVisibility() != View.VISIBLE) && (searchEditText.getText().toString().isEmpty())) {
+                            //if list is empty
+                            if ((list.getAdapter() == null) || (list.getAdapter().getCount() == 0)) {
+                                searcher = new HistorySearcher(MainActivity.this);
+                                searcher.execute();
+                            }
+                        }
+                    }
+                }
+            });
+
 
         kissBar = findViewById(R.id.main_kissbar);
         menuButton = findViewById(R.id.menuButton);
@@ -472,7 +491,7 @@ public class MainActivity extends Activity implements QueryInterface, KeyboardSc
     /**
      * Create the widget
      */
-    private void createWidget(int id) {
+    private void createWidget(final int id) {
         Log.d("KISS", "creating widget: " + id);
         AppWidgetProviderInfo appWidgetInfo = appWidgetManager.getAppWidgetInfo(id);
         AppWidgetHostView hostView = appWidgetHost.createView(this, id, appWidgetInfo);
@@ -480,7 +499,7 @@ public class MainActivity extends Activity implements QueryInterface, KeyboardSc
         ViewGroup widgets = (ViewGroup) findViewById(R.id.widgets);
         hostView.setAppWidget(id, appWidgetInfo);
         Log.d("KISS", "Widget holder height: " + widgets.getHeight());
-        hostView.setMinimumHeight(widgets.getHeight());
+        //hostView.setMinimumHeight(widgets.getHeight());
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             Log.d("KISS", "Widget minimum height:" + hostView.getMinimumHeight());
         }
@@ -489,7 +508,30 @@ public class MainActivity extends Activity implements QueryInterface, KeyboardSc
         findViewById(R.id.intro).setVisibility(View.GONE);
         widgets.addView(hostView);
 
+
+        setChildrenViewLongClick(hostView, new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast.makeText(getApplicationContext(), "Long click " + id, Toast.LENGTH_LONG).show();
+                return true;
+            }
+        });
+
+
         Log.d("KISS", "Widget height:" + hostView.getHeight());
+    }
+
+    protected void setChildrenViewLongClick(View view, View.OnLongClickListener listener) {
+        //view.setOnLongClickListener(listener);
+        String name = view.getClass().getName();
+        if ( view instanceof ViewGroup ) {
+            ViewGroup vg = (ViewGroup) view;
+            for(int i = 0 ; i < vg.getChildCount() ; i++ ) {
+                vg.getChildAt(i).setOnLongClickListener(listener);
+                //vg.setOnLongClickListener(listener);
+                setChildrenViewLongClick(vg.getChildAt(i), listener);
+            }
+        }
     }
 
     /**
@@ -659,25 +701,6 @@ public class MainActivity extends Activity implements QueryInterface, KeyboardSc
         if(kissBar.getVisibility() != View.VISIBLE) {
             openOptionsMenu();
         }
-    }
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        //if motion movement ends
-        if ((event.getAction() == MotionEvent.ACTION_CANCEL) || (event.getAction() == MotionEvent.ACTION_UP)) {
-            //if history is hidden
-            if(prefs.getString("mini-ui", "history").equals("widgets")) {
-                //if not on the application list and not searching for something
-                if ((kissBar.getVisibility() != View.VISIBLE) && (searchEditText.getText().toString().isEmpty())) {
-                    //if list is empty
-                    if ((this.list.getAdapter() == null) || (this.list.getAdapter().getCount() == 0)) {
-                        searcher = new HistorySearcher(MainActivity.this);
-                        searcher.execute();
-                    }
-                }
-            }
-        }
-        return super.dispatchTouchEvent(event);
     }
 
     /**

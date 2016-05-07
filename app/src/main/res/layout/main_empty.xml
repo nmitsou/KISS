@@ -10,7 +10,9 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:elevation="2dp"
-        android:orientation="vertical"/>
+        android:orientation="vertical"
+        android:clickable="false"
+        android:background="#c72c2c" />
 
     <LinearLayout
         android:id="@+id/intro"
