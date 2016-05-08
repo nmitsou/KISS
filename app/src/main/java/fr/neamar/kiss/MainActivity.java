@@ -61,7 +61,6 @@ import fr.neamar.kiss.searcher.Searcher;
 import fr.neamar.kiss.ui.BlockableListView;
 import fr.neamar.kiss.ui.BottomPullEffectView;
 import fr.neamar.kiss.ui.KeyboardScrollHider;
-import fr.neamar.kiss.widgets.KissAppWidgetHost;
 
 public class MainActivity extends Activity implements QueryInterface, KeyboardScrollHider.KeyboardHandler {
 
@@ -399,7 +398,7 @@ public class MainActivity extends Activity implements QueryInterface, KeyboardSc
      */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        LinearLayout widgets = (LinearLayout) findViewById(R.id.widgets);
+        ViewGroup widgets = (ViewGroup) findViewById(R.id.widgets);
         int widgetsCount = widgets.getChildCount();
         int[] ids = new int[widgetsCount];
         for(int i = 0; i < widgetsCount; ++i) {
@@ -417,7 +416,7 @@ public class MainActivity extends Activity implements QueryInterface, KeyboardSc
     protected void onRestoreInstanceState(Bundle state) {
         int[] ids = state.getIntArray(KEY_WIDGET_IDS);
         for(int i = 0; i < ids.length; ++i) {
-            LinearLayout widgets = (LinearLayout) findViewById(R.id.widgets);
+            ViewGroup widgets = (ViewGroup) findViewById(R.id.widgets);
             createWidget(ids[i]);
         }
     }
