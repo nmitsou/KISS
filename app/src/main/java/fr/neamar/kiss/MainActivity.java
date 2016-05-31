@@ -232,22 +232,31 @@ public class MainActivity extends ListActivity implements QueryInterface {
         applyDesignTweaks();
 
         // Tune search bar size
-        tuneSearchBarHeight();
+        setSearchBarHeight();
     }
 
-    private void tuneSearchBarHeight() {
-
+    private void setSearchBarHeight() {
+        //get height of search field
         int selectedHeight = Integer.parseInt(prefs.getString("search_bar_height", "52"));
+        //set height to search field
         ViewGroup.LayoutParams p = searchEditText.getLayoutParams();
         p.height = selectedHeight;
-        // new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, selectedHeight);
         searchEditText.setLayoutParams(p);
         searchEditText.invalidate();
 
-        View v = findViewById(R.id.kissBarLayout);
-        p = v.getLayoutParams();
-        p.height = selectedHeight + 12;
-        v.setLayoutParams(p);
+        final View searchEditLayout = findViewById(R.id.searchEditLayout);
+        //set height of kiss bar
+        searchEditLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                View v = findViewById(R.id.kissBarLayout);
+
+                ViewGroup.LayoutParams p = v.getLayoutParams();
+                p.height = searchEditLayout.getHeight();
+                v.setLayoutParams(p);
+                v.invalidate();
+            }
+        });
     }
 
     /**

@@ -31,7 +31,7 @@
     </string-array>
     <string-array name="searchBarHeightEntries">
         <item>52</item>
-        <item>62</item>
         <item>72</item>
+        <item>92</item>
     </string-array>
 </resources>
